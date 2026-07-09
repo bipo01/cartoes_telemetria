@@ -1,0 +1,3036 @@
+<!doctype html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Controle de Cartões RFID por Unidade</title>
+        <style>
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                min-height: 100vh;
+                font-family: Arial, Helvetica, sans-serif;
+                background: #f3f6fb;
+                color: #1f2937;
+                padding: 28px;
+            }
+
+            .container {
+                width: 100%;
+                max-width: 100%;
+                margin: 0 auto;
+            }
+
+            .header {
+                background: #ffffff;
+                border: 1px solid #e5e7eb;
+                border-radius: 16px;
+                padding: 24px;
+                box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+                margin-bottom: 18px;
+            }
+
+            .header h1 {
+                font-size: 26px;
+                color: #0f172a;
+                margin-bottom: 8px;
+            }
+
+            .header p {
+                color: #64748b;
+                font-size: 15px;
+                line-height: 1.5;
+            }
+
+            .filters-area {
+                display: grid;
+                grid-template-columns:
+                    minmax(260px, 1.1fr) minmax(360px, 1.4fr)
+                    minmax(210px, 0.7fr) auto;
+                gap: 12px;
+                margin-top: 20px;
+                align-items: end;
+            }
+
+            .field {
+                display: flex;
+                flex-direction: column;
+                gap: 7px;
+            }
+
+            .field label {
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+                color: #475569;
+                font-weight: 800;
+            }
+
+            .search-input,
+            .filter-select {
+                width: 100%;
+                height: 48px;
+                border: 1px solid #cbd5e1;
+                border-radius: 12px;
+                padding: 0 14px;
+                font-size: 15px;
+                outline: none;
+                background: #f8fafc;
+                color: #0f172a;
+                transition:
+                    border-color 0.2s,
+                    box-shadow 0.2s,
+                    background 0.2s;
+            }
+
+            .search-input:focus,
+            .filter-select:focus {
+                border-color: #2563eb;
+                background: #ffffff;
+                box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+            }
+
+            .clear-button {
+                height: 48px;
+                border: 0;
+                border-radius: 12px;
+                padding: 0 18px;
+                background: #0f172a;
+                color: #ffffff;
+                font-weight: 800;
+                cursor: pointer;
+                transition:
+                    transform 0.15s,
+                    opacity 0.15s;
+                white-space: nowrap;
+            }
+
+            .clear-button:hover {
+                opacity: 0.9;
+            }
+
+            .clear-button:active {
+                transform: scale(0.98);
+            }
+
+            .stats {
+                display: grid;
+                grid-template-columns: repeat(6, minmax(160px, 1fr));
+                gap: 12px;
+                margin-top: 18px;
+            }
+
+            .stat-card {
+                background: #f8fafc;
+                border: 1px solid #e2e8f0;
+                border-radius: 14px;
+                padding: 14px;
+            }
+
+            .stat-card span {
+                display: block;
+                color: #64748b;
+                font-size: 12px;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+                margin-bottom: 6px;
+            }
+
+            .stat-card strong {
+                display: block;
+                color: #0f172a;
+                font-size: 24px;
+                line-height: 1;
+            }
+
+            .summary {
+                margin-top: 14px;
+                color: #475569;
+                font-size: 14px;
+                font-weight: 800;
+            }
+
+            .table-card {
+                background: #ffffff;
+                border: 1px solid #e5e7eb;
+                border-radius: 16px;
+                overflow: hidden;
+                box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+            }
+
+            .table-wrapper {
+                width: 100%;
+                overflow-x: auto;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                min-width: 3560px;
+                table-layout: auto;
+            }
+
+            thead {
+                background: #0f172a;
+                color: #ffffff;
+                position: sticky;
+                top: 0;
+                z-index: 2;
+            }
+
+            th,
+            td {
+                padding: 12px 14px;
+                text-align: left;
+                border-bottom: 1px solid #e5e7eb;
+                vertical-align: middle;
+                font-size: 14px;
+                white-space: nowrap;
+            }
+
+            th {
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+                white-space: nowrap;
+            }
+
+            th:nth-child(1),
+            td:nth-child(1) {
+                width: 250px;
+                min-width: 250px;
+            }
+
+            th:nth-child(2),
+            td:nth-child(2) {
+                width: 70px;
+                min-width: 70px;
+            }
+
+            th:nth-child(3),
+            td:nth-child(3) {
+                width: 160px;
+                min-width: 160px;
+            }
+
+            th:nth-child(4),
+            td:nth-child(4) {
+                width: 460px;
+                min-width: 460px;
+            }
+
+            th:nth-child(5),
+            td:nth-child(5) {
+                width: 170px;
+                min-width: 170px;
+            }
+
+            th:nth-child(6),
+            td:nth-child(6) {
+                width: 120px;
+                min-width: 120px;
+            }
+
+            th:nth-child(7),
+            td:nth-child(7) {
+                width: 1250px;
+                min-width: 1250px;
+            }
+
+            th:nth-child(8),
+            td:nth-child(8) {
+                width: 320px;
+                min-width: 320px;
+            }
+
+            .action-col,
+            .action-cell {
+                position: sticky;
+                left: 0;
+                z-index: 4;
+                box-shadow: 8px 0 14px rgba(15, 23, 42, 0.08);
+            }
+
+            .action-col {
+                background: #0f172a;
+            }
+
+            .action-cell {
+                background: #ffffff;
+            }
+
+            tbody tr:hover .action-cell {
+                background: #f8fafc;
+            }
+
+            tbody tr.checked-row .action-cell {
+                background: #dcfce7;
+            }
+
+            tbody tr.checked-row:hover .action-cell {
+                background: #bbf7d0;
+            }
+
+            tbody tr.retired-row .action-cell {
+                background: #dbeafe;
+            }
+
+            tbody tr.retired-row:hover .action-cell {
+                background: #bfdbfe;
+            }
+
+            tbody tr.completed-row .action-cell {
+                background: #d1fae5;
+            }
+
+            tbody tr.completed-row:hover .action-cell {
+                background: #a7f3d0;
+            }
+
+            tbody tr:hover {
+                background: #f8fafc;
+            }
+
+            tbody tr.checked-row {
+                background: #dcfce7;
+            }
+
+            tbody tr.checked-row:hover {
+                background: #bbf7d0;
+            }
+
+            tbody tr.retired-row {
+                background: #dbeafe;
+            }
+
+            tbody tr.retired-row:hover {
+                background: #bfdbfe;
+            }
+
+            tbody tr.completed-row {
+                background: #d1fae5;
+            }
+
+            tbody tr.completed-row:hover {
+                background: #a7f3d0;
+            }
+
+            .card-number {
+                font-weight: 900;
+                color: #1d4ed8;
+                white-space: nowrap;
+            }
+
+            .checked-row .card-number {
+                color: #166534;
+            }
+
+            .retired-row .card-number {
+                color: #1d4ed8;
+            }
+
+            .completed-row .card-number {
+                color: #047857;
+            }
+
+            .unit {
+                min-width: 1250px;
+            }
+
+            .status-badge {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 999px;
+                padding: 6px 10px;
+                font-size: 12px;
+                font-weight: 900;
+                white-space: nowrap;
+            }
+
+            .status-ok {
+                color: #166534;
+                background: #bbf7d0;
+                border: 1px solid #86efac;
+            }
+
+            .status-pending {
+                color: #92400e;
+                background: #fef3c7;
+                border: 1px solid #fde68a;
+            }
+
+            .status-retired {
+                color: #1e40af;
+                background: #dbeafe;
+                border: 1px solid #93c5fd;
+            }
+
+            .status-not-retired {
+                color: #5b21b6;
+                background: #ede9fe;
+                border: 1px solid #c4b5fd;
+            }
+
+            .status-stack {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+
+            .action-buttons {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                white-space: nowrap;
+            }
+
+            .ok-button,
+            .retired-button {
+                border: 0;
+                border-radius: 10px;
+                min-width: 92px;
+                height: 36px;
+                padding: 0 14px;
+                font-weight: 900;
+                cursor: pointer;
+                color: #ffffff;
+                background: #16a34a;
+                transition:
+                    transform 0.15s,
+                    opacity 0.15s;
+                white-space: nowrap;
+            }
+
+            .ok-button.checked {
+                background: #334155;
+            }
+
+            .retired-button {
+                background: #2563eb;
+            }
+
+            .retired-button.checked {
+                background: #334155;
+            }
+
+            .ok-button:hover,
+            .retired-button:hover {
+                opacity: 0.9;
+            }
+
+            .ok-button:active,
+            .retired-button:active {
+                transform: scale(0.97);
+            }
+
+            .empty-row td {
+                text-align: center;
+                padding: 34px 16px;
+                color: #b91c1c;
+                font-size: 16px;
+                font-weight: 900;
+                background: #fff7f7;
+            }
+
+            mark {
+                background: #fef08a;
+                color: inherit;
+                padding: 0 2px;
+                border-radius: 4px;
+            }
+
+            @media (max-width: 1100px) {
+                .filters-area {
+                    grid-template-columns: 1fr 1fr;
+                }
+
+                .stats {
+                    grid-template-columns: repeat(2, minmax(160px, 1fr));
+                }
+            }
+
+            @media (max-width: 700px) {
+                body {
+                    padding: 14px;
+                }
+
+                .header {
+                    padding: 18px;
+                }
+
+                .header h1 {
+                    font-size: 22px;
+                }
+
+                .filters-area {
+                    grid-template-columns: 1fr;
+                }
+
+                .stats {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <main class="container">
+            <section class="header">
+                <h1>Controle de Cartões RFID por Unidade</h1>
+                <p>
+                    Filtre pelo número do cartão, escolha uma unidade e marque
+                    com <strong>Ok</strong> os cartões confeccionados e em
+                    posse. Depois marque <strong>Retirado</strong> para
+                    controlar quais cartões já foram entregues/retirados pelas
+                    unidades. As duas marcações são independentes e ficam salvas
+                    no navegador pelo localStorage.
+                </p>
+
+                <div class="filters-area">
+                    <div class="field">
+                        <label for="searchInput">Cartão RFID</label>
+                        <input
+                            id="searchInput"
+                            class="search-input"
+                            type="search"
+                            inputmode="numeric"
+                            autocomplete="off"
+                            placeholder="Ex.: 6220"
+                            aria-label="Pesquisar número do cartão RFID"
+                        />
+                    </div>
+
+                    <div class="field">
+                        <label for="unitSelect">Unidade</label>
+                        <select
+                            id="unitSelect"
+                            class="filter-select"
+                            aria-label="Filtrar por unidade"
+                        >
+                            <option value="">Todas as unidades</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="statusSelect">Status</label>
+                        <select
+                            id="statusSelect"
+                            class="filter-select"
+                            aria-label="Filtrar por status"
+                        >
+                            <option value="todos">Todos</option>
+                            <option value="pendentes">
+                                Pendentes de confecção
+                            </option>
+                            <option value="confeccionados">
+                                Confeccionados
+                            </option>
+                            <option value="nao-retirados">Não retirados</option>
+                            <option value="retirados">Retirados</option>
+                        </select>
+                    </div>
+
+                    <button id="clearButton" class="clear-button" type="button">
+                        Limpar filtros
+                    </button>
+                </div>
+
+                <div id="stats" class="stats"></div>
+                <div id="summary" class="summary"></div>
+            </section>
+
+            <section class="table-card">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr id="tableHead"></tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+
+        <script>
+            const baseHeaders = [
+                "Nº",
+                "Cartão RFID",
+                "NOME",
+                "CPF",
+                "ORGÃO",
+                "UNIDADE",
+            ];
+            const headers = ["AÇÃO", ...baseHeaders, "SITUAÇÃO"];
+            const STORAGE_KEY_CONFECCIONADOS =
+                "cs-frotas-cartoes-confeccionados-v1";
+            const STORAGE_KEY_RETIRADOS = "cs-frotas-cartoes-retirados-v1";
+            const dados = [
+                {
+                    Nº: "1",
+                    "Cartão RFID": "1216220",
+                    NOME: "ERASMO MATEUS DA SILVA",
+                    CPF: "860.879.161-72",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "2",
+                    "Cartão RFID": "1259172",
+                    NOME: "LUANA GOMES NEGRÃO RIBEIRO",
+                    CPF: "082.166.079-97",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE APIACÁS",
+                },
+                {
+                    Nº: "3",
+                    "Cartão RFID": "1303460",
+                    NOME: "ROSANGELA XAVIER FERREIRA",
+                    CPF: "052.826.951-89",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE APIACÁS",
+                },
+                {
+                    Nº: "4",
+                    "Cartão RFID": "1239871",
+                    NOME: "FABIO NUNES COELHO",
+                    CPF: "038.040.561-05",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE BRASNORTE",
+                },
+                {
+                    Nº: "5",
+                    "Cartão RFID": "1272665",
+                    NOME: "GIOVANI OLIVEIRA MUNIZ",
+                    CPF: "015.411.672-60",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE BRASNORTE",
+                },
+                {
+                    Nº: "6",
+                    "Cartão RFID": "1246975",
+                    NOME: "GRACIELLY ROSA ORMOND PIOTROWSKI",
+                    CPF: "006.621.571-41",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE BRASNORTE",
+                },
+                {
+                    Nº: "7",
+                    "Cartão RFID": "1255284",
+                    NOME: "FRANCISCO TACILIO LOPES LUSTOSA",
+                    CPF: "035.854.241-39",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE BRASNORTE",
+                },
+                {
+                    Nº: "8",
+                    "Cartão RFID": "1307803",
+                    NOME: "JESSICA ADRIANA BRANDÃO DE SOUZA",
+                    CPF: "046.261.181-78",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE BRASNORTE ",
+                },
+                {
+                    Nº: "9",
+                    "Cartão RFID": "1283063",
+                    NOME: "CESAR AUGUSTO STONA ",
+                    CPF: "009.934.600-11",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DE ROUBOS E FURTOS DE CUIABÁ ",
+                },
+                {
+                    Nº: "10",
+                    "Cartão RFID": "1233510",
+                    NOME: "DEBORA ROBERTA BORGES",
+                    CPF: "021.022.431-25",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE BRASNORTE",
+                },
+                {
+                    Nº: "11",
+                    "Cartão RFID": "7205258",
+                    NOME: "EDIVANIA APARECIDA DA SILVA LISBOA ROSSETO",
+                    CPF: "031.251.161-20",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE BRASNORTE",
+                },
+                {
+                    Nº: "12",
+                    "Cartão RFID": "7201500",
+                    NOME: "DIEGO PELAYO TEIXEIRA",
+                    CPF: "797.923.911-34",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA ESPECIALIZADA EM CRIMES FAZENDÁRIOS",
+                },
+                {
+                    Nº: "13",
+                    "Cartão RFID": "7141013",
+                    NOME: "GERALDO DE SOUZA MACEDO NETO",
+                    CPF: "651.713.731-91",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA ESPECIALIZADA EM CRIMES FAZENDÁRIOS",
+                },
+                {
+                    Nº: "14",
+                    "Cartão RFID": "6980835",
+                    NOME: "JESSE PAZ GONCALVES",
+                    CPF: "487.263.031-91",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA ESPECIALIZADA EM CRIMES FAZENDÁRIOS",
+                },
+                {
+                    Nº: "15",
+                    "Cartão RFID": "6625937",
+                    NOME: "FABIO MELQUIZEDEQUE DE SOUZA",
+                    CPF: "594.860.151-04",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA ESPECIALIZADA DE COMBATE À CORRUPÇÃO",
+                },
+                {
+                    Nº: "16",
+                    "Cartão RFID": "6570480",
+                    NOME: "JORDANA MARCOS SALOMÃO",
+                    CPF: "032.774.821-46",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE ARIPUANÃ ",
+                },
+                {
+                    Nº: "17",
+                    "Cartão RFID": "7154286",
+                    NOME: "RAMIRES CHATEAUBRIAND DIAS",
+                    CPF: "570.455.341-91",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "GERÊNCIA ESTADUAL DE POLINTER",
+                },
+                {
+                    Nº: "18",
+                    "Cartão RFID": "6997803",
+                    NOME: "EDUARDO BITTENCOURT",
+                    CPF: "040.894.229-06",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA EM REPRESSÃO A NARCÓTICOS",
+                },
+                {
+                    Nº: "19",
+                    "Cartão RFID": "6643725",
+                    NOME: "DANIELA DO CARMO REIS",
+                    CPF: "017.005.011-43",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE QUERÊNCIA",
+                },
+                {
+                    Nº: "20",
+                    "Cartão RFID": "6960507",
+                    NOME: "DIONYS ZANOTELLI",
+                    CPF: "086.557.487-14",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE QUERÊNCIA",
+                },
+                {
+                    Nº: "21",
+                    "Cartão RFID": "6978100",
+                    NOME: "EDIVANETE SOARES DE SALES",
+                    CPF: "008.206.391-50",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE QUERÊNCIA",
+                },
+                {
+                    Nº: "22",
+                    "Cartão RFID": "7158277",
+                    NOME: "FATIMA APARECIDA DA SILVA",
+                    CPF: "651.604.601-87",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE QUERÊNCIA",
+                },
+                {
+                    Nº: "23",
+                    "Cartão RFID": "7175932",
+                    NOME: "GABRIEL PIRES LIMA",
+                    CPF: "050.552.671-94",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE QUERÊNCIA",
+                },
+                {
+                    Nº: "24",
+                    "Cartão RFID": "7009099",
+                    NOME: "JULIANO ANTONIO DE BASTOS",
+                    CPF: "749.388.431-53",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE QUERÊNCIA",
+                },
+                {
+                    Nº: "25",
+                    "Cartão RFID": "7211469",
+                    NOME: "ADILSON CORTEZ DA SILVA",
+                    CPF: "695.573.061-49",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA ESPECIALIZADA DO MEIO AMBIENTE",
+                },
+                {
+                    Nº: "26",
+                    "Cartão RFID": "7169714",
+                    NOME: "CARLOS ALBERTO BATISTA DE MEDEIROS",
+                    CPF: "503.595.761-68",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DE HOMICÍDIO E PROTEÇÃO À PESSOA DE CUIABÁ",
+                },
+                {
+                    Nº: "27",
+                    "Cartão RFID": "7141246",
+                    NOME: "FERNANDO RODRIGUES RIBEIRO",
+                    CPF: "828.720.071-72",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DE HOMICÍDIO E PROTEÇÃO À PESSOA DE CUIABÁ",
+                },
+                {
+                    Nº: "28",
+                    "Cartão RFID": "7187397",
+                    NOME: "CHRISTIAN ALESSANDRO CABRAL",
+                    CPF: "024.930.346-94",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA ESPECIALIZADA DE DELITOS DE TRÂNSITO",
+                },
+                {
+                    Nº: "29",
+                    "Cartão RFID": "6978737",
+                    NOME: "MAURO ARRUDA DE MOURA APOITIA",
+                    CPF: "006.491.291-48",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE GUARANTÃ DO NORTE",
+                },
+                {
+                    Nº: "30",
+                    "Cartão RFID": "6968240",
+                    NOME: "ALESSANDRA SANTANA DA SILVA",
+                    CPF: "012.105.571-00",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "31",
+                    "Cartão RFID": "7221564",
+                    NOME: "DÂMARES KATY RAMOS DA LUZ",
+                    CPF: "030.561.871-76",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "32",
+                    "Cartão RFID": "7151916",
+                    NOME: "EDEVAN DA CRUZ ALMEIDA ",
+                    CPF: "830.552.741-72",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC) ",
+                },
+                {
+                    Nº: "33",
+                    "Cartão RFID": "7030284",
+                    NOME: "FERNANDA LEMES DA SILVA",
+                    CPF: "865.797.201-82",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "34",
+                    "Cartão RFID": "7221338",
+                    NOME: "FLORISVALDO ANTONIO RIBEIRO",
+                    CPF: "486.975.591-20",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "35",
+                    "Cartão RFID": "7180338",
+                    NOME: "GRAZIELA APARECIDA GUIMARAES",
+                    CPF: "978.328.551-34",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "36",
+                    "Cartão RFID": "7214602",
+                    NOME: "JUNIOR JOSE DA SILVA SCHERENNER",
+                    CPF: "022.196.771-09",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "37",
+                    "Cartão RFID": "6973448",
+                    NOME: "REGINA TRINDADE CAMPOS ZANATTA",
+                    CPF: "802.021.284-15",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC) ",
+                },
+                {
+                    Nº: "38",
+                    "Cartão RFID": "6967231",
+                    NOME: "RENATO ANTONIO MORAES CASTRO",
+                    CPF: "346.644.161-72",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "39",
+                    "Cartão RFID": "7159662",
+                    NOME: "VANESSA DE SOUZA LARA MAGALHÃES",
+                    CPF: "956.253.561-49",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "40",
+                    "Cartão RFID": "7203780",
+                    NOME: "ADILSON VARGAS",
+                    CPF: "781.460.031-68",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "41",
+                    "Cartão RFID": "1049694",
+                    NOME: "ALESSANDRA RODRIGUES DE ALMEIDA",
+                    CPF: "963.276.501-04",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "42",
+                    "Cartão RFID": "1254181",
+                    NOME: "ANDERSON DE SOUZA CARNEIRO",
+                    CPF: "931.583.861-00",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "43",
+                    "Cartão RFID": "1288722",
+                    NOME: "ANTONIO ACELINO DE ALMEIDA",
+                    CPF: "503.301.101-44",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "44",
+                    "Cartão RFID": "1226625",
+                    NOME: "APARECIDA DE ARRUDA PINHEIRO",
+                    CPF: "298.569.731-04",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "45",
+                    "Cartão RFID": "1271208",
+                    NOME: "AUGUSTO MARIO CAXITO AMARAL",
+                    CPF: "722.292.171-00",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "46",
+                    "Cartão RFID": "1302811",
+                    NOME: "CRISTIANE CATIA RICALDES",
+                    CPF: "010.531.351-30",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "47",
+                    "Cartão RFID": "1221814",
+                    NOME: "DIEGO CAMARA AQUINO DE LAVOR",
+                    CPF: "009.997.831-81",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "48",
+                    "Cartão RFID": "1224047",
+                    NOME: "DOUGLAS OSWALDO PRADO LIMA",
+                    CPF: "596.297.702-53",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "49",
+                    "Cartão RFID": "1268987",
+                    NOME: "EDEMARCIA LEMES DUARTE LARA",
+                    CPF: "799.668.021-34",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "50",
+                    "Cartão RFID": "1220830",
+                    NOME: "FABIANO DE ASSIS SOUZA",
+                    CPF: "008.543.181-86",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DE ROUBOS E FURTOS DE CÁCERES",
+                },
+                {
+                    Nº: "51",
+                    "Cartão RFID": "7221989",
+                    NOME: "HERCOLIS PAULO AMARAL CARDOSO",
+                    CPF: "594.000.561-68",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "52",
+                    "Cartão RFID": "7276581",
+                    NOME: "IRENE SIMOES PEDROGA",
+                    CPF: "865.709.431-20",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "53",
+                    "Cartão RFID": "7229709",
+                    NOME: "IVONEI DA SILVA MORAES",
+                    CPF: "651.592.331-72",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "54",
+                    "Cartão RFID": "3144981",
+                    NOME: "LORIVAL SOARES DA SILVA",
+                    CPF: "594.181.171-34",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "55",
+                    "Cartão RFID": "5975637",
+                    NOME: "MARIDEANE MARTINS PEREIRA",
+                    CPF: "708.417.481-87",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "56",
+                    "Cartão RFID": "7297538",
+                    NOME: "NAEL SANTANA VIEIRA SONAQUE",
+                    CPF: "828.946.801-63",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "57",
+                    "Cartão RFID": "13330183",
+                    NOME: "PAULO JOSIAS DE CARVALHO PENHA",
+                    CPF: "922.469.151-04",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "58",
+                    "Cartão RFID": "13292067",
+                    NOME: "REGINALDO APARECIDO FERREIRA CAMPOS",
+                    CPF: "019.071.921-40",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "59",
+                    "Cartão RFID": "13176644",
+                    NOME: "ROSANGELA HELENA STAFFORTI",
+                    CPF: "800.800.221-20",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC) ",
+                },
+                {
+                    Nº: "60",
+                    "Cartão RFID": "1211149",
+                    NOME: "RUY CARLOS LEITE EGUES",
+                    CPF: "651.585.121-91",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "61",
+                    "Cartão RFID": "1289299",
+                    NOME: "VICENTE GOMES DE ARRUDA JUNIOR",
+                    CPF: "621.773.701-91",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "62",
+                    "Cartão RFID": "1292270",
+                    NOME: "WILTER DE CASTRO CAXITO",
+                    CPF: "621.821.021-91",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CÁCERES (CISC)",
+                },
+                {
+                    Nº: "63",
+                    "Cartão RFID": "1238282",
+                    NOME: "SEBASTIAO DE LIMA NETO",
+                    CPF: "826.147.501-82",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE SINOP",
+                },
+                {
+                    Nº: "64",
+                    "Cartão RFID": "1269095",
+                    NOME: "PEDRO DUARTE DE OLIVEIRA",
+                    CPF: "486.814.311-53",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA REGIONAL DE SINOP",
+                },
+                {
+                    Nº: "65",
+                    "Cartão RFID": "1280876",
+                    NOME: "JOSE RAMON LEITE",
+                    CPF: "101.377.566-07",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE JACIARA",
+                },
+                {
+                    Nº: "66",
+                    "Cartão RFID": "1004143",
+                    NOME: "DEMILSON CARRASQUEIRA DE SOUSA",
+                    CPF: "571.838.301-44",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE JACIARA",
+                },
+                {
+                    Nº: "67",
+                    "Cartão RFID": "1154376",
+                    NOME: "ALCIR GONÇALVES DE ARAUJO",
+                    CPF: "621.161.501-91",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE JACIARA",
+                },
+                {
+                    Nº: "68",
+                    "Cartão RFID": "1159644",
+                    NOME: "JULIARDO SOUZA SOBRINHO",
+                    CPF: "713.265.101-34",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE JACIARA",
+                },
+                {
+                    Nº: "69",
+                    "Cartão RFID": "1184578",
+                    NOME: "EVERTON KUMBIER",
+                    CPF: "850.463.291-15",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE JACIARA",
+                },
+                {
+                    Nº: "70",
+                    "Cartão RFID": "1292927",
+                    NOME: "CAROLINA BALIEGO BODANESE ",
+                    CPF: "651.593.061-53",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DE DEFESA DA MULHER, DA CRIANÇA E DO IDOSO DE PRIMAVERA DO LESTE ",
+                },
+                {
+                    Nº: "71",
+                    "Cartão RFID": "1268577",
+                    NOME: "MARIA DOS ANJOS GOMES BARBOSA",
+                    CPF: "902.864.211-00",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DE DEFESA DA MULHER, DA CRIANÇA E DO IDOSO DE PRIMAVERA DO LESTE",
+                },
+                {
+                    Nº: "72",
+                    "Cartão RFID": "1203879",
+                    NOME: "MARCELA CECILIA VILLA MENDONCA",
+                    CPF: "580.653.771-49",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DE DEFESA DA MULHER, DA CRIANÇA E DO IDOSO DE PRIMAVERA DO LESTE",
+                },
+                {
+                    Nº: "73",
+                    "Cartão RFID": "7254712",
+                    NOME: "CLAUDIA DIVINA SILVA FRANÇA",
+                    CPF: "594.926.801-30",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DE DEFESA DA MULHER, DA CRIANÇA E DO IDOSO DE PRIMAVERA DO LESTE",
+                },
+                {
+                    Nº: "74",
+                    "Cartão RFID": "3083193",
+                    NOME: "GUSTAVO ESPINDULA DE SOUZA",
+                    CPF: "069.105.656-06",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE TANGARÁ DA SERRA",
+                },
+                {
+                    Nº: "75",
+                    "Cartão RFID": "7277729",
+                    NOME: "RODRIGO ALESSANDRO DE ANDRADE NASCIMENTO",
+                    CPF: "405.737.611-91",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "3ª DELEGACIA DE POLÍCIA DE CUIABÁ - REPRESSÃO À CRIMES DE MENOR POTENCIAL OFENSIVO",
+                },
+                {
+                    Nº: "76",
+                    "Cartão RFID": "3106414",
+                    NOME: "MARLUCIA MOREIRA NEVES",
+                    CPF: "807.111.201-10",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DE REPRESSÃO A CRIMES INFORMÁTICOS",
+                },
+                {
+                    Nº: "77",
+                    "Cartão RFID": "1225946",
+                    NOME: "JEAN PEREIRA RODRIGUES",
+                    CPF: "696.725.201-15",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE NOBRES",
+                },
+                {
+                    Nº: "78",
+                    "Cartão RFID": "7026761",
+                    NOME: "RENATO BORGES DE PAULA",
+                    CPF: "118.940.217-38",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE GUARANTÃ DO NORTE",
+                },
+                {
+                    Nº: "79",
+                    "Cartão RFID": "7212036",
+                    NOME: "LEANDRO HENRIQUE SOUSA DE SANTANA",
+                    CPF: "023.387.031-89",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE RIBEIRÃO CASCALHEIRA",
+                },
+                {
+                    Nº: "80",
+                    "Cartão RFID": "7044395",
+                    NOME: "ALESANDRO GARCIA",
+                    CPF: "461.076.731-72",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DE DEFESA DOS DIREITOS DA CRIANÇA E DO ADOLESCENTE DE CUIABÁ ",
+                },
+                {
+                    Nº: "81",
+                    "Cartão RFID": "1307021",
+                    NOME: "ANA PAULA FERREIRA",
+                    CPF: "688.992.111-91",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA ESPECIALIZADA DO ADOLESCENTE - CUIABÁ ",
+                },
+                {
+                    Nº: "82",
+                    "Cartão RFID": "7141573",
+                    NOME: "DENIS TEIXEIRA CARVALHO DO NASCIMENTO",
+                    CPF: "011.953.891-16",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA ESPECIALIZADA DO ADOLESCENTE - CUIABÁ",
+                },
+                {
+                    Nº: "83",
+                    "Cartão RFID": "6978402",
+                    NOME: "DOROTEU SODRE DOS SANTOS NETO",
+                    CPF: "667.816.121-15",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DE DEFESA DOS DIREITOS DA CRIANÇA E DO ADOLESCENTE DE CUIABÁ",
+                },
+                {
+                    Nº: "84",
+                    "Cartão RFID": "7160807",
+                    NOME: "ELAINE SIQUEIRA ROSA LIMA",
+                    CPF: "993.099.981-72",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DE DEFESA DOS DIREITOS DA CRIANÇA E DO ADOLESCENTE DE CUIABÁ",
+                },
+                {
+                    Nº: "85",
+                    "Cartão RFID": "6965301",
+                    NOME: "FABIANE REWEL BEZERRA",
+                    CPF: "791.349.121-34",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DE DELITOS CONTRA A PESSOA IDOSA",
+                },
+                {
+                    Nº: "86",
+                    "Cartão RFID": "7177918",
+                    NOME: "GENESIO ARAKAKI JUNIOR",
+                    CPF: "159.867.428-50",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DE DEFESA DOS DIREITOS DA CRIANÇA E DO ADOLESCENTE DE CUIABÁ",
+                },
+                {
+                    Nº: "87",
+                    "Cartão RFID": "7014937",
+                    NOME: "ROGERIO BORTOLOTI DELGADO",
+                    CPF: "581.388.891-87",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DE DEFESA DOS DIREITOS DA CRIANÇA E DO ADOLESCENTE DE CUIABÁ",
+                },
+                {
+                    Nº: "88",
+                    "Cartão RFID": "6581240",
+                    NOME: "VALDEMIR DUNDA DE DEUS",
+                    CPF: "960.797.541-34",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DE DEFESA DOS DIREITOS DA CRIANÇA E DO ADOLESCENTE DE CUIABÁ",
+                },
+                {
+                    Nº: "89",
+                    "Cartão RFID": "7179139",
+                    NOME: "VILMAR ALVES DA SILVA",
+                    CPF: "513.299.211-00",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA ESPECIALIZADA DO ADOLESCENTE - CUIABÁ",
+                },
+                {
+                    Nº: "90",
+                    "Cartão RFID": "7278156",
+                    NOME: "CLAYTON QUEIROZ MOURA",
+                    CPF: "786.643.571-53",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA ESPECIALIZADA DO ADOLESCENTE - CUIABÁ",
+                },
+                {
+                    Nº: "91",
+                    "Cartão RFID": "7163530",
+                    NOME: "ROBSON ADILSON BULHÕES",
+                    CPF: "894.095.401-78",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA ESPECIALIZADA DO MEIO AMBIENTE",
+                },
+                {
+                    Nº: "92",
+                    "Cartão RFID": "7043246",
+                    NOME: "HENRIQUE MADUREIRA ESPINDOLA DE BARROS",
+                    CPF: "019.851.921-44",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE PEIXOTO DE AZEVEDO",
+                },
+                {
+                    Nº: "93",
+                    "Cartão RFID": "7193584",
+                    NOME: "THIAGO PINHEIRO BARROS",
+                    CPF: "894.467.633-04",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE PEIXOTO DE AZEVEDO",
+                },
+                {
+                    Nº: "94",
+                    "Cartão RFID": "6980792",
+                    NOME: "CLAUDINEIA DA SILVA",
+                    CPF: "033.849.291-79",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE PEIXOTO DE AZEVEDO",
+                },
+                {
+                    Nº: "95",
+                    "Cartão RFID": "7224004",
+                    NOME: "FLAVIANE FRANCISCO DE SOUZA",
+                    CPF: "853.847.122-87",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE PEIXOTO DE AZEVEDO",
+                },
+                {
+                    Nº: "96",
+                    "Cartão RFID": "7034721",
+                    NOME: "REGINALDO NUNES DE ALMEIDA",
+                    CPF: "797.455.201-87",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE PEIXOTO DE AZEVEDO",
+                },
+                {
+                    Nº: "97",
+                    "Cartão RFID": "7141416",
+                    NOME: "SUZANNE SOUSA FERNANDES",
+                    CPF: "965.133.572-68",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE PEIXOTO DE AZEVEDO",
+                },
+                {
+                    Nº: "98",
+                    "Cartão RFID": "7158654",
+                    NOME: "BRAULIO CASTRO CEZARIO",
+                    CPF: "672.634.371-04",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE PEIXOTO DE AZEVEDO",
+                },
+                {
+                    Nº: "99",
+                    "Cartão RFID": "7272252",
+                    NOME: "CHARLES HENRIQUE SOUZA DE JESUS",
+                    CPF: "046.366.771-96",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE PEIXOTO DE AZEVEDO ",
+                },
+                {
+                    Nº: "100",
+                    "Cartão RFID": "12005235",
+                    NOME: "CLARK LUAN NUNES DE CAMPOS",
+                    CPF: "055.981.351-16",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE PEIXOTO DE AZEVEDO",
+                },
+                {
+                    Nº: "101",
+                    "Cartão RFID": "11672280",
+                    NOME: "DUANNA DE LIMA SILVA",
+                    CPF: "037.726.741-43",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE PEIXOTO DE AZEVEDO",
+                },
+                {
+                    Nº: "102",
+                    "Cartão RFID": "11953454",
+                    NOME: "EURY ATALAIA SANTOS ANDRADE ",
+                    CPF: "643.238.032-49",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE PEIXOTO DE AZEVEDO ",
+                },
+                {
+                    Nº: "103",
+                    "Cartão RFID": "7002940",
+                    NOME: "FABIANO APARECIDO NOGUEIRA SAMPAIO",
+                    CPF: "964.645.421-68",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE PEIXOTO DE AZEVEDO",
+                },
+                {
+                    Nº: "104",
+                    "Cartão RFID": "7017493",
+                    NOME: "HENRIQUE BUENO RIBAS",
+                    CPF: "982.303.362-53",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE PEIXOTO DE AZEVEDO",
+                },
+                {
+                    Nº: "105",
+                    "Cartão RFID": "6963288",
+                    NOME: "LETICIA BEATRIZ LIMA LEITE",
+                    CPF: "753.782.051-15",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE PEIXOTO DE AZEVEDO",
+                },
+                {
+                    Nº: "106",
+                    "Cartão RFID": "7045014",
+                    NOME: "MARCO ANTONIO DA SILVA",
+                    CPF: "667.427.301-53",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE PEIXOTO DE AZEVEDO",
+                },
+                {
+                    Nº: "107",
+                    "Cartão RFID": "6992460",
+                    NOME: "MARIO MARCIO DA COSTA PROENÇA",
+                    CPF: "588.358.902-25",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE PEIXOTO DE AZEVEDO ",
+                },
+                {
+                    Nº: "108",
+                    "Cartão RFID": "6652859",
+                    NOME: "MATHEUS MOURA DE CAMPOS",
+                    CPF: "046.127.221-08",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE PEIXOTO DE AZEVEDO",
+                },
+                {
+                    Nº: "109",
+                    "Cartão RFID": "7232122",
+                    NOME: "CARLOS EDUARDO SILVA MODOLON",
+                    CPF: "870.451.411-49",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE QUERÊNCIA",
+                },
+                {
+                    Nº: "110",
+                    "Cartão RFID": "7010438",
+                    NOME: "CLÁUDIO PEREIRA DOURADO",
+                    CPF: "513.228.381-00",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA REGIONAL DE ALTA FLORESTA ",
+                },
+                {
+                    Nº: "111",
+                    "Cartão RFID": "6973440",
+                    NOME: "IVAN NEY DO ESPIRITO SANTO",
+                    CPF: "804.697.601-68",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DA CRIANÇA E DO ADOLESCENTE DE CÁCERES",
+                },
+                {
+                    Nº: "112",
+                    "Cartão RFID": "7037957",
+                    NOME: "SÉRGIO MÁRIO PEREIRA",
+                    CPF: "536.123.451-68",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DA CRIANÇA E DO ADOLESCENTE DE CÁCERES ",
+                },
+                {
+                    Nº: "113",
+                    "Cartão RFID": "6632101",
+                    NOME: "AGUIOMAR MEZZALIRA",
+                    CPF: "890.975.480-04",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DA CRIANÇA E DO ADOLESCENTE DE CÁCERES",
+                },
+                {
+                    Nº: "114",
+                    "Cartão RFID": "6630980",
+                    NOME: "ELIEL FERREIRA DA SILVA",
+                    CPF: "054.653.391-44",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE NOVA OLÍMPIA",
+                },
+                {
+                    Nº: "115",
+                    "Cartão RFID": "6609123",
+                    NOME: "ALEX RODRIGUES ALVES LIMA",
+                    CPF: "998.131.731-49",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE LUCAS DO RIO VERDE",
+                },
+                {
+                    Nº: "116",
+                    "Cartão RFID": "6490164",
+                    NOME: "REGIS ALYSON ARAÚJO BARBOSA",
+                    CPF: "051.173.491-30",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE LUCAS DO RIO VERDE",
+                },
+                {
+                    Nº: "117",
+                    "Cartão RFID": "6654028",
+                    NOME: "CRISTINA GOULARTE LIMA",
+                    CPF: "010.676.471-39",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE LUCAS DO RIO VERDE",
+                },
+                {
+                    Nº: "118",
+                    "Cartão RFID": "6574966",
+                    NOME: "VALDINEY CAPISTRANO DA ROSA",
+                    CPF: "693.828.751-15",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE LUCAS DO RIO VERDE",
+                },
+                {
+                    Nº: "119",
+                    "Cartão RFID": "6537565",
+                    NOME: "JOSÉ BARBOSA TRAJANO",
+                    CPF: "486.884.441-53",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE LUCAS DO RIO VERDE ",
+                },
+                {
+                    Nº: "120",
+                    "Cartão RFID": "1286667",
+                    NOME: "SANDRA MARANGON",
+                    CPF: "955.484.160-49",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE LUCAS DO RIO VERDE",
+                },
+                {
+                    Nº: "121",
+                    "Cartão RFID": "1298316",
+                    NOME: "ANDRESSON MARTINS ARAÚJO",
+                    CPF: "731.395.805-68",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE LUCAS DO RIO VERDE ",
+                },
+                {
+                    Nº: "122",
+                    "Cartão RFID": "1210968",
+                    NOME: "WLADIMIR DE MESQUITA PINTO",
+                    CPF: "007.840.171-23",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE LUCAS DO RIO VERDE",
+                },
+                {
+                    Nº: "123",
+                    "Cartão RFID": "7221551",
+                    NOME: "RAFAEL GALBIATTI COSTA",
+                    CPF: "940.338.112-49",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE LUCAS DO RIO VERDE",
+                },
+                {
+                    Nº: "124",
+                    "Cartão RFID": "6657242",
+                    NOME: "ROSSANA LACERDA BUQUIGARE",
+                    CPF: "721.033.961-20",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE LUCAS DO RIO VERDE",
+                },
+                {
+                    Nº: "125",
+                    "Cartão RFID": "6618815",
+                    NOME: "INARA DE PAULA NARCIZO",
+                    CPF: "006.000.901-24",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE LUCAS DO RIO VERDE",
+                },
+                {
+                    Nº: "126",
+                    "Cartão RFID": "6614964",
+                    NOME: "CARLA REGINA CAVALHERI PERON",
+                    CPF: "851.476.649-04",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE LUCAS DO RIO VERDE",
+                },
+                {
+                    Nº: "127",
+                    "Cartão RFID": "6576844",
+                    NOME: "DIVINO ALEXANDRE GONÇALVES",
+                    CPF: "667.050.291-53",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "2ª DELEGACIA DE POLÍCIA DE RONDONÓPOLIS ",
+                },
+                {
+                    Nº: "128",
+                    "Cartão RFID": "6613417",
+                    NOME: "ADRIANA APARECIDA LIMA DIAS",
+                    CPF: "024.053.441-73",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE SÃO JOSÉ DO RIO CLARO",
+                },
+                {
+                    Nº: "129",
+                    "Cartão RFID": "7140151",
+                    NOME: "FELIPE RODRIGUES DE REZENDE",
+                    CPF: "009.576.211-67",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "CORREGEDORIA-GERAL",
+                },
+                {
+                    Nº: "130",
+                    "Cartão RFID": "7207342",
+                    NOME: "SUZAN RANIERI ARANTES",
+                    CPF: "280.416.338-54",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DE DEFESA DA MULHER DE CUIABÁ",
+                },
+                {
+                    Nº: "131",
+                    "Cartão RFID": "6656446",
+                    NOME: "JEAN ANDRADE ARAUJO",
+                    CPF: "077.174.426-98",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA REGIONAL DE JUÍNA",
+                },
+                {
+                    Nº: "132",
+                    "Cartão RFID": "6981106",
+                    NOME: "TAYNAH PIOVESAN RODRIGUES ",
+                    CPF: "729.547.011-53",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE JUÍNA (CISC) ",
+                },
+                {
+                    Nº: "133",
+                    "Cartão RFID": "6967464",
+                    NOME: "CARLOS EDUARDO VIRGILIO OLIVEIRA",
+                    CPF: "015.848.691-94",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA  DE JUÍNA (CISC)",
+                },
+                {
+                    Nº: "134",
+                    "Cartão RFID": "6519546",
+                    NOME: "FRANCISCO CARLOS DA SILVA",
+                    CPF: "442.422.201-20",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA  DE JUÍNA (CISC)",
+                },
+                {
+                    Nº: "135",
+                    "Cartão RFID": "7180626",
+                    NOME: "JORDANDE DOMINGOS RODRIGUES JUNIOR",
+                    CPF: "023.007.801-00",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA  DE JUÍNA (CISC)",
+                },
+                {
+                    Nº: "136",
+                    "Cartão RFID": "6988829",
+                    NOME: "MARCIA BARTOCZ",
+                    CPF: "992.907.741-34",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA  DE JUÍNA (CISC)",
+                },
+                {
+                    Nº: "137",
+                    "Cartão RFID": "7232233",
+                    NOME: "OZIEL FEITOSA VIEIRA",
+                    CPF: "838.251.931-87",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA  DE JUÍNA (CISC)",
+                },
+                {
+                    Nº: "138",
+                    "Cartão RFID": "7186186",
+                    NOME: "PAULO CESAR FRANÇA",
+                    CPF: "889.172.311-87",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA  DE JUÍNA (CISC)",
+                },
+                {
+                    Nº: "139",
+                    "Cartão RFID": "12110807",
+                    NOME: "ROBSON DE OLIVEIRA CAMPOS",
+                    CPF: "930.997.381-15",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA  DE JUÍNA (CISC)",
+                },
+                {
+                    Nº: "140",
+                    "Cartão RFID": "11658991",
+                    NOME: "UILIAN BARBOSA DOS SANTOS",
+                    CPF: "660.554.582-68",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA  DE JUÍNA (CISC)",
+                },
+                {
+                    Nº: "141",
+                    "Cartão RFID": "11904766",
+                    NOME: "VINICIUS RAMON AGUIAR",
+                    CPF: "987.889.062-72",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA  DE JUÍNA (CISC)",
+                },
+                {
+                    Nº: "142",
+                    "Cartão RFID": "7148577",
+                    NOME: "WOSHIGTON KESTER VIEIRA",
+                    CPF: "015.401.522-94",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA  DE JUÍNA (CISC)",
+                },
+                {
+                    Nº: "143",
+                    "Cartão RFID": "7030577",
+                    NOME: "AIRTON ROSAN",
+                    CPF: "536.132.951-72",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE JAURU",
+                },
+                {
+                    Nº: "144",
+                    "Cartão RFID": "6960261",
+                    NOME: "ALCIONE ALVES BETTINI",
+                    CPF: "411.190.291-04",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE PONTES E LACERDA (CISC)",
+                },
+                {
+                    Nº: "145",
+                    "Cartão RFID": "7179450",
+                    NOME: "ALDINEI JOSE NEVES MARTINS",
+                    CPF: "007.675.871-03",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE PONTES E LACERDA (CISC)",
+                },
+                {
+                    Nº: "146",
+                    "Cartão RFID": "6976741",
+                    NOME: "DIVO ALEXANDRE SOARES ROCHA",
+                    CPF: "026.093.642-10",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE JAURU",
+                },
+                {
+                    Nº: "147",
+                    "Cartão RFID": "6998026",
+                    NOME: "MAURILO JEFFERSON ALVES DE ALMEIDA ",
+                    CPF: "046.674.281-98",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE JAURU ",
+                },
+                {
+                    Nº: "148",
+                    "Cartão RFID": "7197390",
+                    NOME: "NUBIA FRANCIELLI FERNANDES GUSMÃO BRAVO ",
+                    CPF: "021.153.641-55",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE JAURU ",
+                },
+                {
+                    Nº: "149",
+                    "Cartão RFID": "7187786",
+                    NOME: "Adriana Figueiredo de Souza",
+                    CPF: "883.795.821-87",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DE ROUBOS E FURTOS DE VÁRZEA GRANDE",
+                },
+                {
+                    Nº: "150",
+                    "Cartão RFID": "7197361",
+                    NOME: "Arildo de Almeida Rodrigues",
+                    CPF: "503.114.171-91",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "CENTRAL DE FLAGRANTES DE CUIABÁ",
+                },
+                {
+                    Nº: "151",
+                    "Cartão RFID": "6973630",
+                    NOME: "Edilson Paulo de Miranda",
+                    CPF: "544.865.721-49",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA EM REPRESSÃO A ROUBOS E FURTOS DE VEÍCULOS AUTOMOTORES DE CUIABÁ",
+                },
+                {
+                    Nº: "152",
+                    "Cartão RFID": "7033969",
+                    NOME: "Eduardo Daniel Hiller",
+                    CPF: "571.585.331-15",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA EM REPRESSÃO A ROUBOS E FURTOS DE VEÍCULOS AUTOMOTORES DE CUIABÁ",
+                },
+                {
+                    Nº: "153",
+                    "Cartão RFID": "7186244",
+                    NOME: "Germano Joaquim Santana Neto",
+                    CPF: "654.950.201-20",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA EM REPRESSÃO A ROUBOS E FURTOS DE VEÍCULOS AUTOMOTORES DE CUIABÁ",
+                },
+                {
+                    Nº: "154",
+                    "Cartão RFID": "7230566",
+                    NOME: "Guilherme de Carvalho Bertoli",
+                    CPF: "343.974.598-86",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA EM REPRESSÃO A ROUBOS E FURTOS DE VEÍCULOS AUTOMOTORES DE CUIABÁ",
+                },
+                {
+                    Nº: "155",
+                    "Cartão RFID": "7183742",
+                    NOME: "Helder Augusto Santos de Arruda",
+                    CPF: "567.881.501-68",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA EM REPRESSÃO A ROUBOS E FURTOS DE VEÍCULOS AUTOMOTORES DE CUIABÁ",
+                },
+                {
+                    Nº: "156",
+                    "Cartão RFID": "7184019",
+                    NOME: "Jocimar Gabriel de França",
+                    CPF: "569.817.081-91",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA EM REPRESSÃO A ROUBOS E FURTOS DE VEÍCULOS AUTOMOTORES DE CUIABÁ",
+                },
+                {
+                    Nº: "157",
+                    "Cartão RFID": "7037312",
+                    NOME: "Luiz Fernando Valle Cocola",
+                    CPF: "789.690.931-68",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA EM REPRESSÃO A ROUBOS E FURTOS DE VEÍCULOS AUTOMOTORES DE CUIABÁ",
+                },
+                {
+                    Nº: "158",
+                    "Cartão RFID": "6966037",
+                    NOME: "Marcos Sampaio Alves Ferreira",
+                    CPF: "218.465.078-12",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA EM REPRESSÃO A ROUBOS E FURTOS DE VEÍCULOS AUTOMOTORES DE CUIABÁ",
+                },
+                {
+                    Nº: "159",
+                    "Cartão RFID": "6996585",
+                    NOME: "Milton Ferraz de Oliveira",
+                    CPF: "699.567.661-00",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA EM REPRESSÃO A ROUBOS E FURTOS DE VEÍCULOS AUTOMOTORES DE CUIABÁ ",
+                },
+                {
+                    Nº: "160",
+                    "Cartão RFID": "6546823",
+                    NOME: "Neidson Vicente Lopes",
+                    CPF: "537.790.291-20",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA EM REPRESSÃO A ROUBOS E FURTOS DE VEÍCULOS AUTOMOTORES DE CUIABÁ",
+                },
+                {
+                    Nº: "161",
+                    "Cartão RFID": "7301939",
+                    NOME: "Nilson Aparecido Cortez Metran",
+                    CPF: "537.639.041-15",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA EM REPRESSÃO A ROUBOS E FURTOS DE VEÍCULOS AUTOMOTORES DE CUIABÁ",
+                },
+                {
+                    Nº: "162",
+                    "Cartão RFID": "7241784",
+                    NOME: "Patrícia Ortiz Feltrin",
+                    CPF: "752.771.232-53",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DE ROUBOS E FURTOS DE VÁRZEA GRANDE ",
+                },
+                {
+                    Nº: "163",
+                    "Cartão RFID": "1232940",
+                    NOME: "Paulo Sérgio dos Santos",
+                    CPF: "408.718.861-20",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA EM REPRESSÃO A ROUBOS E FURTOS DE VEÍCULOS AUTOMOTORES DE CUIABÁ ",
+                },
+                {
+                    Nº: "164",
+                    "Cartão RFID": "7196651",
+                    NOME: "Raphael Guerra Pereira",
+                    CPF: "012.987.036-62",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA ESPECIALIZADA DE ESTELIONATO DE CUIABÁ",
+                },
+                {
+                    Nº: "165",
+                    "Cartão RFID": "12163030",
+                    NOME: "Rodrigo Lopes Alonso",
+                    CPF: "152.708.578-39",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA EM REPRESSÃO A ROUBOS E FURTOS DE VEÍCULOS AUTOMOTORES DE CUIABÁ",
+                },
+                {
+                    Nº: "166",
+                    "Cartão RFID": "13020190",
+                    NOME: "Thaissa Costa Figueiredo de Souza",
+                    CPF: "033.107.351-09",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA EM REPRESSÃO A ROUBOS E FURTOS DE VEÍCULOS AUTOMOTORES DE CUIABÁ",
+                },
+                {
+                    Nº: "167",
+                    "Cartão RFID": "12852618",
+                    NOME: "Washington Renan Marques Freitas",
+                    CPF: "006.177.991-13",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA EM REPRESSÃO A ROUBOS E FURTOS DE VEÍCULOS AUTOMOTORES DE CUIABÁ",
+                },
+                {
+                    Nº: "168",
+                    "Cartão RFID": "13095469",
+                    NOME: "Alex Feitosa de Albuquerque",
+                    CPF: "823.099.221-53",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE NOVA MONTE VERDE",
+                },
+                {
+                    Nº: "169",
+                    "Cartão RFID": "7286367",
+                    NOME: "Maria de Lurde Antunes Benites",
+                    CPF: "541.062.811-04",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA REGIONAL DE NOVA MUTUM",
+                },
+                {
+                    Nº: "170",
+                    "Cartão RFID": "7244955",
+                    NOME: "Fredson Welliton Servio Rondon",
+                    CPF: "616.092.421-49",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA EM REPRESSÃO A ROUBOS E FURTOS DE VEÍCULOS AUTOMOTORES DE CUIABÁ",
+                },
+                {
+                    Nº: "171",
+                    "Cartão RFID": "7247052",
+                    NOME: "LUIS JOSE JAC DE JESUS NETO ",
+                    CPF: "346.265.221-49",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA EM REPRESSÃO A ROUBOS E FURTOS DE VEÍCULOS AUTOMOTORES DE CUIABÁ ",
+                },
+                {
+                    Nº: "172",
+                    "Cartão RFID": "6970843",
+                    NOME: "Zelino da Silva Dias",
+                    CPF: "781.016.701-49",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA EM REPRESSÃO A ROUBOS E FURTOS DE VEÍCULOS AUTOMOTORES DE CUIABÁ",
+                },
+                {
+                    Nº: "173",
+                    "Cartão RFID": "6999814",
+                    NOME: "Emerson Andreoli Silvestre",
+                    CPF: "808.651.351-34",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "PLANTÃO DE ATENDIMENTO A VÍTIMA DE VIOLÊNCIA DOMÉSTICA E SEXUAL DE CUIABÁ",
+                },
+                {
+                    Nº: "174",
+                    "Cartão RFID": "7150613",
+                    NOME: "Silvana da Silva Carvalho",
+                    CPF: "593.980.511-68",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE TANGARÁ DA SERRA",
+                },
+                {
+                    Nº: "175",
+                    "Cartão RFID": "7297728",
+                    NOME: "Cristiane Lima de Assis",
+                    CPF: "053.933.847-85",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DE ROUBOS E FURTOS DE NOVA MUTUM",
+                },
+                {
+                    Nº: "176",
+                    "Cartão RFID": "6956917",
+                    NOME: "Claudio Pereira Dourado",
+                    CPF: "513.228.381-00",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA REGIONAL DE ALTA FLORESTA",
+                },
+                {
+                    Nº: "177",
+                    "Cartão RFID": "7466226",
+                    NOME: "Cleverson de Souza Hanse",
+                    CPF: "734.151.039-00",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA REGIONAL DE SINOP",
+                },
+                {
+                    Nº: "178",
+                    "Cartão RFID": "7270805",
+                    NOME: "Juliana de Carvalho Lobo",
+                    CPF: "013.010.851-03",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DE ROUBOS E FURTOS DE NOVA MUTUM",
+                },
+                {
+                    Nº: "179",
+                    "Cartão RFID": "12905769",
+                    NOME: "Amanda Gris Correia",
+                    CPF: "020.589.801-74",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE ALTA FLORESTA",
+                },
+                {
+                    Nº: "180",
+                    "Cartão RFID": "12910569",
+                    NOME: "Juscelino Silva Porto",
+                    CPF: "001.850.171-00",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE ALTA FLORESTA",
+                },
+                {
+                    Nº: "181",
+                    "Cartão RFID": "12932772",
+                    NOME: "Rogerio Rodrigues Rizo",
+                    CPF: "803.013.711-72",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE ALTA FLORESTA",
+                },
+                {
+                    Nº: "182",
+                    "Cartão RFID": "7014388",
+                    NOME: "Fábio Pacheco Rodrigues",
+                    CPF: "964.646.231-68",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA EM REPRESSÃO A NARCÓTICOS ",
+                },
+                {
+                    Nº: "183",
+                    "Cartão RFID": "13162609",
+                    NOME: "DANILO CARVALHO NUNES",
+                    CPF: "431.790.291-53",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "CORREGEDORIA-GERAL",
+                },
+                {
+                    Nº: "184",
+                    "Cartão RFID": "13171343",
+                    NOME: "EDISON RICARDO PICK",
+                    CPF: "884.957.011-20",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "GERÊNCIA DE COMBATE AO CRIME ORGANIZADO",
+                },
+                {
+                    Nº: "185",
+                    "Cartão RFID": "13022438",
+                    NOME: "JOELMA DA SILVA MESQUITA",
+                    CPF: "952.309.391-68",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DE DEFESA DOS DIREITOS DA CRIANÇA E DO ADOLESCENTE DE CUIABÁ",
+                },
+                {
+                    Nº: "186",
+                    "Cartão RFID": "13292607",
+                    NOME: "HENRIQUE TREVIZAN",
+                    CPF: "035.267.569-10",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "CORREGEDORIA-GERAL",
+                },
+                {
+                    Nº: "187",
+                    "Cartão RFID": "13160360",
+                    NOME: "ANGELA SATSUKI MATSUBARA",
+                    CPF: "212.885.408-33",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE NOBRES",
+                },
+                {
+                    Nº: "188",
+                    "Cartão RFID": "6997504",
+                    NOME: "WENDERSON PEREIRA OKADA",
+                    CPF: "002.936.771-90",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA EM REPRESSÃO A NARCÓTICOS",
+                },
+                {
+                    Nº: "189",
+                    "Cartão RFID": "12923455",
+                    NOME: "ALYNE SILVEIRA ALVES",
+                    CPF: "006.215.411-76",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA REGIONAL DE SINOP",
+                },
+                {
+                    Nº: "190",
+                    "Cartão RFID": "7186532",
+                    NOME: "CRISTIANE ZERI DE OLIVEIRA PAULO ",
+                    CPF: "804.404.281-49",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA REGIONAL DE SINOP ",
+                },
+                {
+                    Nº: "191",
+                    "Cartão RFID": "7281303",
+                    NOME: "FABIO DOS SANTOS",
+                    CPF: "001.012.271-08",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA REGIONAL DE SINOP",
+                },
+                {
+                    Nº: "192",
+                    "Cartão RFID": "7438431",
+                    NOME: "JEFERSON BARONIO",
+                    CPF: "015.146.231-37",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA REGIONAL DE SINOP",
+                },
+                {
+                    Nº: "193",
+                    "Cartão RFID": "7010797",
+                    NOME: "SIMONE GENEROSO FERREIRA",
+                    CPF: "030.236.411-02",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA REGIONAL DE SINOP",
+                },
+                {
+                    Nº: "194",
+                    "Cartão RFID": "7315207",
+                    NOME: "THIAGO MARQUES BERGER",
+                    CPF: "100.843.447-76",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DE ROUBOS E FURTOS DE SINOP",
+                },
+                {
+                    Nº: "195",
+                    "Cartão RFID": "6993437",
+                    NOME: "VANESSA BONI DA COSTA",
+                    CPF: "004.602.431-01",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA REGIONAL DE SINOP",
+                },
+                {
+                    Nº: "196",
+                    "Cartão RFID": "7153420",
+                    NOME: "EDUARDO RIBEIRO PORTILHO",
+                    CPF: "044.899.741-08",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "GERÊNCIA DE INTELIGÊNCIA CIBERNÉTICA",
+                },
+                {
+                    Nº: "197",
+                    "Cartão RFID": "7002970",
+                    NOME: "JORGE ALBERTO DOS SANTOS LEITE",
+                    CPF: "705.741.541-91",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "GERÊNCIA DE INTELIGÊNCIA CIBERNÉTICA",
+                },
+                {
+                    Nº: "198",
+                    "Cartão RFID": "7205109",
+                    NOME: "JULINE APARECIDA ANDRADE",
+                    CPF: "073.391.189-77",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "GERÊNCIA DE INTELIGÊNCIA CIBERNÉTICA",
+                },
+                {
+                    Nº: "199",
+                    "Cartão RFID": "6968748",
+                    NOME: "LIESIO RODRIGUES DE SOUZA",
+                    CPF: "062.001.811-95",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CAMPO VERDE",
+                },
+                {
+                    Nº: "200",
+                    "Cartão RFID": "7222569",
+                    NOME: "LUCIANE BENEDITA TAQUES DE ABREU",
+                    CPF: "961.577.121-04",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "GERÊNCIA DE INTELIGÊNCIA CIBERNÉTICA",
+                },
+                {
+                    Nº: "201",
+                    "Cartão RFID": "7194148",
+                    NOME: "MARCO ANTONIO MARQUES",
+                    CPF: "695.292.301-25",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "GERÊNCIA DE INTELIGÊNCIA CIBERNÉTICA",
+                },
+                {
+                    Nº: "202",
+                    "Cartão RFID": "6991553",
+                    NOME: "MOISES DE OLIVEIRA SANTANA",
+                    CPF: "026.474.391-17",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "GERÊNCIA DE INTELIGÊNCIA CIBERNÉTICA",
+                },
+                {
+                    Nº: "203",
+                    "Cartão RFID": "7285456",
+                    NOME: "WILLIAN DE ARRUDA FIGUEIREDO",
+                    CPF: "535.913.051-20",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "GERÊNCIA DE INTELIGÊNCIA POLICIAL",
+                },
+                {
+                    Nº: "204",
+                    "Cartão RFID": "7019559",
+                    NOME: "GUSTAVO JOSE PAZUCH",
+                    CPF: "011.350.880-80",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "NÚCLEO ESPECIALIZADO DE ATENDIMENTO À MULHER E VULNERÁVEIS DE NOVA MUTUM",
+                },
+                {
+                    Nº: "205",
+                    "Cartão RFID": "12961751",
+                    NOME: "Tatiane Schmidt Gonçalves",
+                    CPF: "934.185.821-68",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA REGIONAL DE PRIMAVERA DO LESTE ",
+                },
+                {
+                    Nº: "206",
+                    "Cartão RFID": "13250904",
+                    NOME: "FERNANDO FILIU ALBUQUERQUE MARQUES",
+                    CPF: "694.833.101-72",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE BARRA DO BUGRES",
+                },
+                {
+                    Nº: "207",
+                    "Cartão RFID": "12891567",
+                    NOME: "GILCIMAR CARVALHO DOS SANTOS",
+                    CPF: "824.352.435-53",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE BARRA DO BUGRES",
+                },
+                {
+                    Nº: "208",
+                    "Cartão RFID": "12942776",
+                    NOME: "EDSON RIBEIRO",
+                    CPF: "018.912.858-58",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE BARRA DO BUGRES",
+                },
+                {
+                    Nº: "209",
+                    "Cartão RFID": "12900333",
+                    NOME: "GUSTAVO BARCELOS DE SOUZA LOPES",
+                    CPF: "041.722.891-00",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE BARRA DO BUGRES",
+                },
+                {
+                    Nº: "210",
+                    "Cartão RFID": "12899370",
+                    NOME: "JEINIFFER RODRIGUES MARQUES ",
+                    CPF: "045.676.991-90",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE BARRA DO BUGRES ",
+                },
+                {
+                    Nº: "211",
+                    "Cartão RFID": "13346094",
+                    NOME: "YORINNE SAYURI HATAKEYAMA OLIVEIRA",
+                    CPF: "737.253.901-34",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE BARRA DO BUGRES",
+                },
+                {
+                    Nº: "212",
+                    "Cartão RFID": "12872796",
+                    NOME: "ADRIANA PINHEIRO DOS SANTOS",
+                    CPF: "799.906.731-87",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE BARRA DO BUGRES",
+                },
+                {
+                    Nº: "213",
+                    "Cartão RFID": "6498346",
+                    NOME: "ROGÉRIO DA SILVA IRLANDES",
+                    CPF: "693.032.311-04",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CONFRESA",
+                },
+                {
+                    Nº: "214",
+                    "Cartão RFID": "6490155",
+                    NOME: "MARCELO SILVA DE SOUZA",
+                    CPF: "717.031.101-10",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CONFRESA",
+                },
+                {
+                    Nº: "215",
+                    "Cartão RFID": "6985166",
+                    NOME: "MARLON VALADARES DA SILVA JÚNIOR ",
+                    CPF: "032.279.181-29",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CONFRESA ",
+                },
+                {
+                    Nº: "216",
+                    "Cartão RFID": "6508177",
+                    NOME: "Adriano Falco Palharini",
+                    CPF: "017.048.419-09",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA REGIONAL DE NOVA MUTUM",
+                },
+                {
+                    Nº: "217",
+                    "Cartão RFID": "6577901",
+                    NOME: "DJAILSON AMORIM DE JESUS ",
+                    CPF: "488.628.601-10",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA REGIONAL DE NOVA MUTUM ",
+                },
+                {
+                    Nº: "218",
+                    "Cartão RFID": "6608117",
+                    NOME: "JOAO ROMANO DA SILVA JUNIOR ",
+                    CPF: "005.286.529-07",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA REGIONAL DE NOVA MUTUM ",
+                },
+                {
+                    Nº: "219",
+                    "Cartão RFID": "6989155",
+                    NOME: "Jorge Luis dos Santos",
+                    CPF: "469.566.382-15",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA REGIONAL DE NOVA MUTUM",
+                },
+                {
+                    Nº: "220",
+                    "Cartão RFID": "6672668",
+                    NOME: "MARCOS ANTONIO FERREIRA CARVALHO ",
+                    CPF: "427.791.701-15",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA REGIONAL DE NOVA MUTUM ",
+                },
+                {
+                    Nº: "221",
+                    "Cartão RFID": "6574839",
+                    NOME: "Maria de Lurde Antunes Benites",
+                    CPF: "541.062.811-04",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA REGIONAL DE NOVA MUTUM",
+                },
+                {
+                    Nº: "222",
+                    "Cartão RFID": "7166190",
+                    NOME: "Messias Rocha de Oliveira",
+                    CPF: "019.787.971-33",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA REGIONAL DE NOVA MUTUM",
+                },
+                {
+                    Nº: "223",
+                    "Cartão RFID": "7147826",
+                    NOME: "NILO ALVES DOS REIS JUNIOR ",
+                    CPF: "899.201.121-00",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DE HOMICÍDIO E PROTEÇÃO À PESSOA DE CUIABÁ ",
+                },
+                {
+                    Nº: "224",
+                    "Cartão RFID": "6564269",
+                    NOME: "MARLON VALADARES DA SILVA JÚNIOR ",
+                    CPF: "032.279.181-29",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CONFRESA ",
+                },
+                {
+                    Nº: "225",
+                    "Cartão RFID": "6553127",
+                    NOME: "Sued Dias da Silva Junior",
+                    CPF: "718.604.101-97",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DE REPRESSÃO A CRIMES INFORMÁTICOS",
+                },
+                {
+                    Nº: "226",
+                    "Cartão RFID": "6642827",
+                    NOME: "Marlise da Silva Ferreira Matos",
+                    CPF: "630.640.491-00",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DE REPRESSÃO A CRIMES INFORMÁTICOS",
+                },
+                {
+                    Nº: "227",
+                    "Cartão RFID": "6504429",
+                    NOME: "Antonio Pinto de Figueiredo",
+                    CPF: "570.016.001-30",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DE REPRESSÃO A CRIMES INFORMÁTICOS",
+                },
+                {
+                    Nº: "228",
+                    "Cartão RFID": "7195731",
+                    NOME: "Rosely Rosangela dos Reis",
+                    CPF: "620.953.661-15",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "OUTROS ÓRGÃOS",
+                },
+                {
+                    Nº: "229",
+                    "Cartão RFID": "6961479",
+                    NOME: "Santhiago Marcondes Santos Soares",
+                    CPF: "622.050.641-34",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DE REPRESSÃO A CRIMES INFORMÁTICOS",
+                },
+                {
+                    Nº: "230",
+                    "Cartão RFID": "6549314",
+                    NOME: "IVANILDES SOUZA MOREIRA",
+                    CPF: "617.128.331-20",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "DELEGACIA ESPECIALIZADA DO ADOLESCENTE DE BARRA DO GARÇAS",
+                },
+                {
+                    Nº: "231",
+                    "Cartão RFID": "7164113",
+                    NOME: "ALLAN VITOR SOUSA DA MATA",
+                    CPF: "010.329.541-08",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA REGIONAL DE VILA RICA",
+                },
+                {
+                    Nº: "232",
+                    "Cartão RFID": "7206424",
+                    NOME: "HAMILCAR BARREIRA ABREU",
+                    CPF: "555.160.681-34",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA REGIONAL DE VILA RICA",
+                },
+                {
+                    Nº: "233",
+                    "Cartão RFID": "7222494",
+                    NOME: "CLEUBER GONCALVES DA SILVA FILHO",
+                    CPF: "043.187.831-54",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA REGIONAL DE VILA RICA",
+                },
+                {
+                    Nº: "234",
+                    "Cartão RFID": "7146574",
+                    NOME: "JOSUE MARTINS DOS SANTOS",
+                    CPF: "329.384.381-68",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA REGIONAL DE VILA RICA",
+                },
+                {
+                    Nº: "235",
+                    "Cartão RFID": "7031083",
+                    NOME: "JUCELIA GONCALVES MARCHESAN",
+                    CPF: "914.618.801-06",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA REGIONAL DE VILA RICA",
+                },
+                {
+                    Nº: "236",
+                    "Cartão RFID": "7148711",
+                    NOME: "RODRIGO IBIAPINO RIBEIRO MORAIS ",
+                    CPF: "717.934.101-00",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA REGIONAL DE VILA RICA",
+                },
+                {
+                    Nº: "237",
+                    "Cartão RFID": "6543102",
+                    NOME: "RODRIGO HENRIQUE COSTA",
+                    CPF: "042.056.256-77",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE CAMPO VERDE",
+                },
+                {
+                    Nº: "238",
+                    "Cartão RFID": "7584206",
+                    NOME: "GLAUCIA CRISTINA MOURA ALT",
+                    CPF: "594.568.921-15",
+                    ORGÃO: "SESP MT",
+                    UNIDADE:
+                        "2ª DELEGACIA DE POLÍCIA DE CUIABÁ - FEITOS GERAIS",
+                },
+                {
+                    Nº: "239",
+                    "Cartão RFID": "7176283",
+                    NOME: "JOSE LUIZ PEREIRA SOARES",
+                    CPF: "353.015.461-04",
+                    ORGÃO: "SESP MT",
+                    UNIDADE: "DELEGACIA DE POLÍCIA DE RIBEIRÃO CASCALHEIRA",
+                },
+            ];
+
+            const searchInput = document.getElementById("searchInput");
+            const clearButton = document.getElementById("clearButton");
+            const unitSelect = document.getElementById("unitSelect");
+            const statusSelect = document.getElementById("statusSelect");
+            const tableHead = document.getElementById("tableHead");
+            const tableBody = document.getElementById("tableBody");
+            const summary = document.getElementById("summary");
+            const stats = document.getElementById("stats");
+
+            let cartoesConfeccionados = getStoredCards(
+                STORAGE_KEY_CONFECCIONADOS,
+            );
+            let cartoesRetirados = getStoredCards(STORAGE_KEY_RETIRADOS);
+
+            function onlyNumbers(value) {
+                return String(value ?? "").replace(/\D/g, "");
+            }
+
+            function normalizeText(value) {
+                return String(value ?? "")
+                    .normalize("NFD")
+                    .replace(/[̀-ͯ]/g, "")
+                    .replace(/\s+/g, " ")
+                    .trim()
+                    .toUpperCase();
+            }
+
+            function cleanDisplayText(value) {
+                return String(value ?? "")
+                    .replace(/\s+/g, " ")
+                    .trim();
+            }
+
+            function getCardKey(row) {
+                return onlyNumbers(row["Cartão RFID"]);
+            }
+
+            function getUnitKey(row) {
+                return normalizeText(row["UNIDADE"]);
+            }
+
+            function getStoredCards(storageKey) {
+                try {
+                    const rawValue = localStorage.getItem(storageKey);
+                    const parsedValue = rawValue ? JSON.parse(rawValue) : [];
+
+                    if (!Array.isArray(parsedValue)) {
+                        return new Set();
+                    }
+
+                    return new Set(
+                        parsedValue.map(onlyNumbers).filter(Boolean),
+                    );
+                } catch (error) {
+                    console.warn(
+                        `Não foi possível ler os cartões salvos no localStorage em ${storageKey}.`,
+                        error,
+                    );
+                    return new Set();
+                }
+            }
+
+            function saveStoredCards(storageKey, cardsSet) {
+                const cards = [...cardsSet].sort((a, b) =>
+                    a.localeCompare(b, "pt-BR", { numeric: true }),
+                );
+                localStorage.setItem(storageKey, JSON.stringify(cards));
+            }
+
+            function buildUnitsInfo() {
+                const unidadesSet = new Set();
+                const unidadesDisplay = new Map();
+                const cartoesPorUnidade = new Map();
+                const linhasSemUnidade = [];
+
+                dados.forEach((row) => {
+                    const unidadeKey = getUnitKey(row);
+                    const unidadeDisplay = cleanDisplayText(row["UNIDADE"]);
+                    const cartao = getCardKey(row);
+
+                    if (!unidadeKey) {
+                        linhasSemUnidade.push(row);
+                        return;
+                    }
+
+                    unidadesSet.add(unidadeKey);
+
+                    if (!unidadesDisplay.has(unidadeKey)) {
+                        unidadesDisplay.set(
+                            unidadeKey,
+                            unidadeDisplay || unidadeKey,
+                        );
+                    }
+
+                    if (!cartoesPorUnidade.has(unidadeKey)) {
+                        cartoesPorUnidade.set(unidadeKey, []);
+                    }
+
+                    cartoesPorUnidade.get(unidadeKey).push(cartao);
+                });
+
+                return {
+                    unidadesSet,
+                    unidadesDisplay,
+                    cartoesPorUnidade,
+                    linhasSemUnidade,
+                };
+            }
+
+            function logUnitsAtStartup() {
+                const { unidadesSet, cartoesPorUnidade, linhasSemUnidade } =
+                    buildUnitsInfo();
+                const cartoesPorUnidadeObject = Object.fromEntries(
+                    [...cartoesPorUnidade.entries()]
+                        .sort(([unitA], [unitB]) =>
+                            unitA.localeCompare(unitB, "pt-BR"),
+                        )
+                        .map(([unit, cards]) => [
+                            unit,
+                            [...cards].sort((a, b) =>
+                                a.localeCompare(b, "pt-BR", { numeric: true }),
+                            ),
+                        ]),
+                );
+
+                console.group("Resumo inicial das unidades");
+                console.log("Set de unidades normalizadas:", unidadesSet);
+                console.log(
+                    "Total de unidades normalizadas:",
+                    unidadesSet.size,
+                );
+                console.log(
+                    "Cartões separados por unidade:",
+                    cartoesPorUnidadeObject,
+                );
+                console.groupEnd();
+
+                if (linhasSemUnidade.length > 0) {
+                    console.warn("Linhas sem unidade:", linhasSemUnidade);
+                }
+            }
+
+            function logPendingCards() {
+                const pendentesConfeccao = dados.filter(
+                    (row) => !cartoesConfeccionados.has(getCardKey(row)),
+                );
+                const pendentesRetirada = dados.filter(
+                    (row) => !cartoesRetirados.has(getCardKey(row)),
+                );
+
+                console.log(
+                    "Total de cartões marcados como confeccionados:",
+                    cartoesConfeccionados.size,
+                );
+                console.log(
+                    "Total de cartões retirados:",
+                    cartoesRetirados.size,
+                );
+                console.log(
+                    "Total de cartões pendentes de confecção:",
+                    pendentesConfeccao.length,
+                );
+                console.log(
+                    "Total de cartões pendentes de retirada:",
+                    pendentesRetirada.length,
+                );
+                console.log(
+                    "Linhas pendentes de confecção:",
+                    pendentesConfeccao,
+                );
+                console.log("Linhas pendentes de retirada:", pendentesRetirada);
+            }
+
+            function populateUnitSelect() {
+                const { unidadesDisplay } = buildUnitsInfo();
+                const sortedUnits = [...unidadesDisplay.entries()].sort(
+                    ([keyA], [keyB]) => keyA.localeCompare(keyB, "pt-BR"),
+                );
+                const fragment = document.createDocumentFragment();
+
+                sortedUnits.forEach(([unitKey, displayName]) => {
+                    const option = document.createElement("option");
+                    option.value = unitKey;
+                    option.textContent = displayName;
+                    fragment.appendChild(option);
+                });
+
+                unitSelect.appendChild(fragment);
+            }
+
+            function createCell(value, className = "") {
+                const td = document.createElement("td");
+                if (className) td.className = className;
+                td.textContent = value ?? "";
+                return td;
+            }
+
+            function createHighlightedCardCell(cardNumber, query) {
+                const td = document.createElement("td");
+                td.className = "card-number";
+
+                const card = String(cardNumber ?? "");
+                if (!query) {
+                    td.textContent = card;
+                    return td;
+                }
+
+                const index = card.indexOf(query);
+                if (index === -1) {
+                    td.textContent = card;
+                    return td;
+                }
+
+                td.append(document.createTextNode(card.slice(0, index)));
+
+                const mark = document.createElement("mark");
+                mark.textContent = card.slice(index, index + query.length);
+                td.append(mark);
+
+                td.append(
+                    document.createTextNode(card.slice(index + query.length)),
+                );
+                return td;
+            }
+
+            function createStatusBadge(text, className) {
+                const span = document.createElement("span");
+                span.className = `status-badge ${className}`;
+                span.textContent = text;
+                return span;
+            }
+
+            function createStatusCell(isChecked, isRetired) {
+                const td = document.createElement("td");
+                const wrapper = document.createElement("div");
+                wrapper.className = "status-stack";
+
+                wrapper.appendChild(
+                    createStatusBadge(
+                        isChecked ? "Confeccionado" : "Pendente",
+                        isChecked ? "status-ok" : "status-pending",
+                    ),
+                );
+
+                wrapper.appendChild(
+                    createStatusBadge(
+                        isRetired ? "Retirado" : "Não retirado",
+                        isRetired ? "status-retired" : "status-not-retired",
+                    ),
+                );
+
+                td.appendChild(wrapper);
+                return td;
+            }
+
+            function createActionCell(row, isChecked, isRetired) {
+                const td = document.createElement("td");
+                td.className = "action-cell";
+
+                const wrapper = document.createElement("div");
+                wrapper.className = "action-buttons";
+
+                const okButton = document.createElement("button");
+                okButton.type = "button";
+                okButton.className = `ok-button ${isChecked ? "checked" : ""}`;
+                okButton.dataset.action = "confeccionado";
+                okButton.dataset.card = getCardKey(row);
+                okButton.textContent = isChecked ? "Desfazer" : "Ok";
+                okButton.title = isChecked
+                    ? "Remover marcação de confeccionado"
+                    : "Marcar como confeccionado e conosco";
+
+                const retiredButton = document.createElement("button");
+                retiredButton.type = "button";
+                retiredButton.className = `retired-button ${isRetired ? "checked" : ""}`;
+                retiredButton.dataset.action = "retirado";
+                retiredButton.dataset.card = getCardKey(row);
+                retiredButton.textContent = isRetired
+                    ? "Desfazer retirada"
+                    : "Retirado";
+                retiredButton.title = isRetired
+                    ? "Remover marcação de retirado"
+                    : "Marcar como retirado/entregue à unidade";
+
+                wrapper.appendChild(okButton);
+                wrapper.appendChild(retiredButton);
+                td.appendChild(wrapper);
+
+                return td;
+            }
+
+            function renderHeader() {
+                tableHead.innerHTML = "";
+                const fragment = document.createDocumentFragment();
+
+                headers.forEach((header) => {
+                    const th = document.createElement("th");
+                    if (header === "AÇÃO") th.className = "action-col";
+                    th.textContent = header;
+                    fragment.appendChild(th);
+                });
+
+                tableHead.appendChild(fragment);
+            }
+
+            function renderRows(rows, query = "") {
+                tableBody.innerHTML = "";
+
+                if (rows.length === 0) {
+                    const tr = document.createElement("tr");
+                    tr.className = "empty-row";
+
+                    const td = document.createElement("td");
+                    td.colSpan = headers.length;
+                    td.textContent = "Não há linhas";
+
+                    tr.appendChild(td);
+                    tableBody.appendChild(tr);
+                    summary.textContent = "0 linhas encontradas.";
+                    return;
+                }
+
+                const fragment = document.createDocumentFragment();
+
+                rows.forEach((row) => {
+                    const cardKey = getCardKey(row);
+                    const isChecked = cartoesConfeccionados.has(cardKey);
+                    const isRetired = cartoesRetirados.has(cardKey);
+                    const tr = document.createElement("tr");
+
+                    if (isChecked) {
+                        tr.classList.add("checked-row");
+                    }
+
+                    if (isRetired) {
+                        tr.classList.add("retired-row");
+                    }
+
+                    if (isChecked && isRetired) {
+                        tr.classList.add("completed-row");
+                    }
+
+                    tr.appendChild(createActionCell(row, isChecked, isRetired));
+
+                    baseHeaders.forEach((header) => {
+                        if (header === "Cartão RFID") {
+                            tr.appendChild(
+                                createHighlightedCardCell(row[header], query),
+                            );
+                            return;
+                        }
+
+                        const className = header === "UNIDADE" ? "unit" : "";
+                        tr.appendChild(createCell(row[header], className));
+                    });
+
+                    tr.appendChild(createStatusCell(isChecked, isRetired));
+                    fragment.appendChild(tr);
+                });
+
+                tableBody.appendChild(fragment);
+                summary.textContent = `${rows.length} linha${rows.length === 1 ? "" : "s"} encontrada${rows.length === 1 ? "" : "s"}.`;
+            }
+
+            function updateStats() {
+                const { unidadesSet } = buildUnitsInfo();
+                const total = dados.length;
+                const confeccionados = dados.filter((row) =>
+                    cartoesConfeccionados.has(getCardKey(row)),
+                ).length;
+                const retirados = dados.filter((row) =>
+                    cartoesRetirados.has(getCardKey(row)),
+                ).length;
+                const pendentesConfeccao = total - confeccionados;
+                const pendentesRetirada = total - retirados;
+
+                stats.innerHTML = `
+        <div class="stat-card">
+          <span>Total na planilha</span>
+          <strong>${total}</strong>
+        </div>
+        <div class="stat-card">
+          <span>Unidades</span>
+          <strong>${unidadesSet.size}</strong>
+        </div>
+        <div class="stat-card">
+          <span>Confeccionados</span>
+          <strong>${confeccionados}</strong>
+        </div>
+        <div class="stat-card">
+          <span>Pendentes confecção</span>
+          <strong>${pendentesConfeccao}</strong>
+        </div>
+        <div class="stat-card">
+          <span>Retirados</span>
+          <strong>${retirados}</strong>
+        </div>
+        <div class="stat-card">
+          <span>Pendentes retirada</span>
+          <strong>${pendentesRetirada}</strong>
+        </div>
+      `;
+            }
+
+            function getFilteredRows() {
+                const query = onlyNumbers(searchInput.value);
+                const selectedUnit = unitSelect.value;
+                const selectedStatus = statusSelect.value;
+
+                return dados.filter((row) => {
+                    const cardNumber = getCardKey(row);
+                    const unitKey = getUnitKey(row);
+                    const isChecked = cartoesConfeccionados.has(cardNumber);
+                    const isRetired = cartoesRetirados.has(cardNumber);
+
+                    const matchesCard = !query || cardNumber.includes(query);
+                    const matchesUnit =
+                        !selectedUnit || unitKey === selectedUnit;
+                    const matchesStatus =
+                        selectedStatus === "todos" ||
+                        (selectedStatus === "pendentes" && !isChecked) ||
+                        (selectedStatus === "confeccionados" && isChecked) ||
+                        (selectedStatus === "nao-retirados" && !isRetired) ||
+                        (selectedStatus === "retirados" && isRetired);
+
+                    return matchesCard && matchesUnit && matchesStatus;
+                });
+            }
+
+            function filterRows() {
+                const query = onlyNumbers(searchInput.value);
+                renderRows(getFilteredRows(), query);
+                updateStats();
+            }
+
+            function toggleCard(cardNumber, action) {
+                const cardKey = onlyNumbers(cardNumber);
+                if (!cardKey) return;
+
+                if (action === "retirado") {
+                    if (cartoesRetirados.has(cardKey)) {
+                        cartoesRetirados.delete(cardKey);
+                    } else {
+                        cartoesRetirados.add(cardKey);
+                    }
+
+                    saveStoredCards(STORAGE_KEY_RETIRADOS, cartoesRetirados);
+                    filterRows();
+                    logPendingCards();
+                    return;
+                }
+
+                if (cartoesConfeccionados.has(cardKey)) {
+                    cartoesConfeccionados.delete(cardKey);
+                } else {
+                    cartoesConfeccionados.add(cardKey);
+                }
+
+                saveStoredCards(
+                    STORAGE_KEY_CONFECCIONADOS,
+                    cartoesConfeccionados,
+                );
+                filterRows();
+                logPendingCards();
+            }
+
+            clearButton.addEventListener("click", () => {
+                searchInput.value = "";
+                unitSelect.value = "";
+                statusSelect.value = "todos";
+                searchInput.focus();
+                filterRows();
+            });
+
+            searchInput.addEventListener("input", filterRows);
+            unitSelect.addEventListener("change", filterRows);
+            statusSelect.addEventListener("change", filterRows);
+
+            tableBody.addEventListener("click", (event) => {
+                const button = event.target.closest("button[data-card]");
+                if (!button) return;
+                toggleCard(button.dataset.card, button.dataset.action);
+            });
+
+            logUnitsAtStartup();
+            populateUnitSelect();
+            renderHeader();
+            filterRows();
+            logPendingCards();
+        </script>
+    </body>
+</html>
