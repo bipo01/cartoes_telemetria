@@ -49,8 +49,8 @@
             .filters-area {
                 display: grid;
                 grid-template-columns:
-                    minmax(200px, 1fr) minmax(220px, 1.3fr)
-                    minmax(220px, 1.2fr) minmax(200px, 1fr) auto;
+                    minmax(260px, 1.1fr) minmax(360px, 1.4fr)
+                    minmax(210px, 0.7fr) auto;
                 gap: 12px;
                 margin-top: 20px;
                 align-items: end;
@@ -149,181 +149,10 @@
             }
 
             .summary {
+                margin-top: 14px;
                 color: #475569;
                 font-size: 14px;
                 font-weight: 800;
-            }
-
-            .results-bar {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 12px;
-                margin-top: 14px;
-                flex-wrap: wrap;
-            }
-
-            .export-button {
-                height: 44px;
-                border: 0;
-                border-radius: 12px;
-                padding: 0 18px;
-                background: #b91c1c;
-                color: #ffffff;
-                font-weight: 800;
-                font-size: 14px;
-                cursor: pointer;
-                transition:
-                    transform 0.15s,
-                    opacity 0.15s;
-                white-space: nowrap;
-            }
-
-            .export-button:hover {
-                opacity: 0.92;
-            }
-
-            .export-button:active {
-                transform: scale(0.98);
-            }
-
-            /* Multi-select */
-            .multiselect {
-                position: relative;
-            }
-
-            .ms-toggle {
-                width: 100%;
-                height: 48px;
-                border: 1px solid #cbd5e1;
-                border-radius: 12px;
-                padding: 0 14px;
-                font-size: 15px;
-                background: #f8fafc;
-                color: #0f172a;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 8px;
-                text-align: left;
-                transition:
-                    border-color 0.2s,
-                    box-shadow 0.2s,
-                    background 0.2s;
-            }
-
-            .ms-toggle:focus,
-            .multiselect.open .ms-toggle {
-                border-color: #2563eb;
-                background: #ffffff;
-                box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
-                outline: none;
-            }
-
-            .ms-label {
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-
-            .ms-caret {
-                color: #64748b;
-                font-size: 12px;
-                flex-shrink: 0;
-            }
-
-            .ms-panel {
-                position: absolute;
-                z-index: 30;
-                top: calc(100% + 6px);
-                left: 0;
-                right: 0;
-                background: #ffffff;
-                border: 1px solid #cbd5e1;
-                border-radius: 12px;
-                box-shadow: 0 16px 40px rgba(15, 23, 42, 0.16);
-                padding: 10px;
-                max-height: 320px;
-                display: flex;
-                flex-direction: column;
-                gap: 8px;
-            }
-
-            .ms-panel[hidden] {
-                display: none;
-            }
-
-            .ms-search {
-                width: 100%;
-                height: 38px;
-                border: 1px solid #cbd5e1;
-                border-radius: 10px;
-                padding: 0 12px;
-                font-size: 14px;
-                outline: none;
-                background: #f8fafc;
-            }
-
-            .ms-search:focus {
-                border-color: #2563eb;
-                background: #ffffff;
-            }
-
-            .ms-actions {
-                display: flex;
-                gap: 8px;
-            }
-
-            .ms-actions button {
-                flex: 1;
-                height: 32px;
-                border: 1px solid #cbd5e1;
-                border-radius: 8px;
-                background: #f1f5f9;
-                color: #0f172a;
-                font-weight: 700;
-                font-size: 12px;
-                cursor: pointer;
-            }
-
-            .ms-actions button:hover {
-                background: #e2e8f0;
-            }
-
-            .ms-options {
-                overflow-y: auto;
-                display: flex;
-                flex-direction: column;
-            }
-
-            .ms-option {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                padding: 8px 8px;
-                border-radius: 8px;
-                cursor: pointer;
-                font-size: 13px;
-                line-height: 1.35;
-            }
-
-            .ms-option:hover {
-                background: #f1f5f9;
-            }
-
-            .ms-option input {
-                width: 17px;
-                height: 17px;
-                flex-shrink: 0;
-                accent-color: #2563eb;
-                cursor: pointer;
-            }
-
-            .ms-empty {
-                padding: 10px 8px;
-                color: #94a3b8;
-                font-size: 13px;
             }
 
             .table-card {
@@ -655,10 +484,9 @@
             <section class="header">
                 <h1>Controle de Cartões RFID por Unidade</h1>
                 <p>
-                    Pesquise pelo número do cartão ou por nome, CPF e unidade,
-                    selecione uma ou várias unidades e um ou vários status e
-                    marque com <strong>Ok</strong> os cartões confeccionados e
-                    em posse. Depois marque <strong>Retirado</strong> para
+                    Filtre pelo número do cartão, escolha uma unidade e marque
+                    com <strong>Ok</strong> os cartões confeccionados e em
+                    posse. Depois marque <strong>Retirado</strong> para
                     controlar quais cartões já foram entregues/retirados pelas
                     unidades. As duas marcações são independentes e ficam salvas
                     no navegador pelo localStorage.
@@ -679,113 +507,33 @@
                     </div>
 
                     <div class="field">
-                        <label for="infoSearchInput"
-                            >Nome, CPF ou unidade</label
+                        <label for="unitSelect">Unidade</label>
+                        <select
+                            id="unitSelect"
+                            class="filter-select"
+                            aria-label="Filtrar por unidade"
                         >
-                        <input
-                            id="infoSearchInput"
-                            class="search-input"
-                            type="search"
-                            autocomplete="off"
-                            placeholder="Ex.: Maria, 123.456 ou Cáceres"
-                            aria-label="Pesquisar por nome, CPF ou unidade"
-                        />
+                            <option value="">Todas as unidades</option>
+                        </select>
                     </div>
 
                     <div class="field">
-                        <label>Unidades</label>
-                        <div
-                            class="multiselect"
-                            id="unitMs"
-                            data-ms="unit"
+                        <label for="statusSelect">Status</label>
+                        <select
+                            id="statusSelect"
+                            class="filter-select"
+                            aria-label="Filtrar por status"
                         >
-                            <button
-                                type="button"
-                                class="ms-toggle"
-                                id="unitMsToggle"
-                                aria-haspopup="listbox"
-                                aria-expanded="false"
-                            >
-                                <span class="ms-label" id="unitMsLabel"
-                                    >Todas as unidades</span
-                                >
-                                <span class="ms-caret" aria-hidden="true"
-                                    >▾</span
-                                >
-                            </button>
-                            <div class="ms-panel" id="unitMsPanel" hidden>
-                                <input
-                                    type="search"
-                                    class="ms-search"
-                                    id="unitMsSearch"
-                                    autocomplete="off"
-                                    placeholder="Filtrar unidades..."
-                                    aria-label="Filtrar lista de unidades"
-                                />
-                                <div class="ms-actions">
-                                    <button
-                                        type="button"
-                                        data-ms-all="unit"
-                                    >
-                                        Selecionar todas
-                                    </button>
-                                    <button
-                                        type="button"
-                                        data-ms-none="unit"
-                                    >
-                                        Limpar
-                                    </button>
-                                </div>
-                                <div
-                                    class="ms-options"
-                                    id="unitMsOptions"
-                                ></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="field">
-                        <label>Status</label>
-                        <div
-                            class="multiselect"
-                            id="statusMs"
-                            data-ms="status"
-                        >
-                            <button
-                                type="button"
-                                class="ms-toggle"
-                                id="statusMsToggle"
-                                aria-haspopup="listbox"
-                                aria-expanded="false"
-                            >
-                                <span class="ms-label" id="statusMsLabel"
-                                    >Todos os status</span
-                                >
-                                <span class="ms-caret" aria-hidden="true"
-                                    >▾</span
-                                >
-                            </button>
-                            <div class="ms-panel" id="statusMsPanel" hidden>
-                                <div class="ms-actions">
-                                    <button
-                                        type="button"
-                                        data-ms-all="status"
-                                    >
-                                        Selecionar todos
-                                    </button>
-                                    <button
-                                        type="button"
-                                        data-ms-none="status"
-                                    >
-                                        Limpar
-                                    </button>
-                                </div>
-                                <div
-                                    class="ms-options"
-                                    id="statusMsOptions"
-                                ></div>
-                            </div>
-                        </div>
+                            <option value="todos">Todos</option>
+                            <option value="pendentes">
+                                Pendentes de confecção
+                            </option>
+                            <option value="confeccionados">
+                                Confeccionados
+                            </option>
+                            <option value="nao-retirados">Não retirados</option>
+                            <option value="retirados">Retirados</option>
+                        </select>
                     </div>
 
                     <button id="clearButton" class="clear-button" type="button">
@@ -794,18 +542,7 @@
                 </div>
 
                 <div id="stats" class="stats"></div>
-
-                <div class="results-bar">
-                    <span id="summary" class="summary"></span>
-                    <button
-                        id="exportTrButton"
-                        class="export-button"
-                        type="button"
-                        title="Exportar Termo de Responsabilidade (PDF) com as linhas encontradas"
-                    >
-                        📄 Exportar TR (PDF)
-                    </button>
-                </div>
+                <div id="summary" class="summary"></div>
             </section>
 
             <section class="table-card">
@@ -2806,28 +2543,13 @@
             ];
 
             const searchInput = document.getElementById("searchInput");
-            const infoSearchInput =
-                document.getElementById("infoSearchInput");
             const clearButton = document.getElementById("clearButton");
-            const exportTrButton =
-                document.getElementById("exportTrButton");
+            const unitSelect = document.getElementById("unitSelect");
+            const statusSelect = document.getElementById("statusSelect");
             const tableHead = document.getElementById("tableHead");
             const tableBody = document.getElementById("tableBody");
             const summary = document.getElementById("summary");
             const stats = document.getElementById("stats");
-
-            const statusOptions = [
-                { value: "pendentes", label: "Pendentes de confecção" },
-                { value: "confeccionados", label: "Confeccionados" },
-                { value: "nao-retirados", label: "Não retirados" },
-                { value: "retirados", label: "Retirados" },
-            ];
-
-            // Conjuntos de seleção dos multi-selects (vazio = todos).
-            const selectedUnits = new Set();
-            const selectedStatuses = new Set();
-            // Mapa chave-normalizada -> nome de exibição da unidade.
-            const unitDisplayByKey = new Map();
 
             let cartoesConfeccionados = getStoredCards(
                 STORAGE_KEY_CONFECCIONADOS,
@@ -2993,256 +2715,21 @@
                 console.log("Linhas pendentes de retirada:", pendentesRetirada);
             }
 
-            // -------- Multi-selects (unidades e status) --------
-
-            function createMsOption(value, label, selectedSet, group) {
-                const optionLabel = document.createElement("label");
-                optionLabel.className = "ms-option";
-
-                const checkbox = document.createElement("input");
-                checkbox.type = "checkbox";
-                checkbox.value = value;
-                checkbox.checked = selectedSet.has(value);
-                checkbox.dataset.msGroup = group;
-
-                const text = document.createElement("span");
-                text.textContent = label;
-
-                optionLabel.appendChild(checkbox);
-                optionLabel.appendChild(text);
-                return optionLabel;
-            }
-
-            function populateUnitOptions() {
+            function populateUnitSelect() {
                 const { unidadesDisplay } = buildUnitsInfo();
-                const container =
-                    document.getElementById("unitMsOptions");
-                container.innerHTML = "";
-
                 const sortedUnits = [...unidadesDisplay.entries()].sort(
                     ([keyA], [keyB]) => keyA.localeCompare(keyB, "pt-BR"),
                 );
-
-                unitDisplayByKey.clear();
                 const fragment = document.createDocumentFragment();
+
                 sortedUnits.forEach(([unitKey, displayName]) => {
-                    unitDisplayByKey.set(unitKey, displayName);
-                    fragment.appendChild(
-                        createMsOption(
-                            unitKey,
-                            displayName,
-                            selectedUnits,
-                            "unit",
-                        ),
-                    );
-                });
-                container.appendChild(fragment);
-            }
-
-            function populateStatusOptions() {
-                const container =
-                    document.getElementById("statusMsOptions");
-                container.innerHTML = "";
-                const fragment = document.createDocumentFragment();
-                statusOptions.forEach(({ value, label }) => {
-                    fragment.appendChild(
-                        createMsOption(
-                            value,
-                            label,
-                            selectedStatuses,
-                            "status",
-                        ),
-                    );
-                });
-                container.appendChild(fragment);
-            }
-
-            function updateUnitLabel() {
-                const label = document.getElementById("unitMsLabel");
-                if (selectedUnits.size === 0) {
-                    label.textContent = "Todas as unidades";
-                } else if (selectedUnits.size === 1) {
-                    const only = [...selectedUnits][0];
-                    label.textContent = unitDisplayByKey.get(only) || only;
-                } else {
-                    label.textContent = `${selectedUnits.size} unidades selecionadas`;
-                }
-            }
-
-            function updateStatusLabel() {
-                const label = document.getElementById("statusMsLabel");
-                if (
-                    selectedStatuses.size === 0 ||
-                    selectedStatuses.size === statusOptions.length
-                ) {
-                    label.textContent = "Todos os status";
-                } else if (selectedStatuses.size === 1) {
-                    const only = [...selectedStatuses][0];
-                    const found = statusOptions.find(
-                        (option) => option.value === only,
-                    );
-                    label.textContent = found ? found.label : only;
-                } else {
-                    label.textContent = `${selectedStatuses.size} status selecionados`;
-                }
-            }
-
-            function filterUnitOptions(term) {
-                const normalized = normalizeText(term);
-                const options = document
-                    .getElementById("unitMsOptions")
-                    .querySelectorAll(".ms-option");
-                options.forEach((option) => {
-                    const text = normalizeText(
-                        option.textContent || "",
-                    );
-                    option.style.display =
-                        !normalized || text.includes(normalized)
-                            ? "flex"
-                            : "none";
-                });
-            }
-
-            function openMs(multiselect) {
-                document
-                    .querySelectorAll(".multiselect.open")
-                    .forEach((element) => {
-                        if (element !== multiselect) closeMs(element);
-                    });
-                multiselect.classList.add("open");
-                multiselect
-                    .querySelector(".ms-toggle")
-                    .setAttribute("aria-expanded", "true");
-                multiselect.querySelector(".ms-panel").hidden = false;
-                const search = multiselect.querySelector(".ms-search");
-                if (search) search.focus();
-            }
-
-            function closeMs(multiselect) {
-                multiselect.classList.remove("open");
-                multiselect
-                    .querySelector(".ms-toggle")
-                    .setAttribute("aria-expanded", "false");
-                multiselect.querySelector(".ms-panel").hidden = true;
-            }
-
-            function setupMultiselects() {
-                populateUnitOptions();
-                populateStatusOptions();
-                updateUnitLabel();
-                updateStatusLabel();
-
-                document
-                    .querySelectorAll(".multiselect")
-                    .forEach((multiselect) => {
-                        const toggle =
-                            multiselect.querySelector(".ms-toggle");
-                        toggle.addEventListener("click", () => {
-                            if (multiselect.classList.contains("open")) {
-                                closeMs(multiselect);
-                            } else {
-                                openMs(multiselect);
-                            }
-                        });
-                    });
-
-                document
-                    .getElementById("unitMsSearch")
-                    .addEventListener("input", (event) => {
-                        filterUnitOptions(event.target.value);
-                    });
-
-                document.addEventListener("change", (event) => {
-                    const checkbox = event.target;
-                    if (
-                        !checkbox.matches ||
-                        !checkbox.matches("input[data-ms-group]")
-                    ) {
-                        return;
-                    }
-                    const group = checkbox.dataset.msGroup;
-                    const targetSet =
-                        group === "unit" ? selectedUnits : selectedStatuses;
-                    if (checkbox.checked) {
-                        targetSet.add(checkbox.value);
-                    } else {
-                        targetSet.delete(checkbox.value);
-                    }
-                    if (group === "unit") {
-                        updateUnitLabel();
-                    } else {
-                        updateStatusLabel();
-                    }
-                    filterRows();
+                    const option = document.createElement("option");
+                    option.value = unitKey;
+                    option.textContent = displayName;
+                    fragment.appendChild(option);
                 });
 
-                document
-                    .querySelectorAll("[data-ms-all]")
-                    .forEach((button) => {
-                        button.addEventListener("click", () => {
-                            const group = button.dataset.msAll;
-                            const panelId =
-                                group === "unit"
-                                    ? "unitMsOptions"
-                                    : "statusMsOptions";
-                            const targetSet =
-                                group === "unit"
-                                    ? selectedUnits
-                                    : selectedStatuses;
-                            document
-                                .getElementById(panelId)
-                                .querySelectorAll("input[type=checkbox]")
-                                .forEach((checkbox) => {
-                                    checkbox.checked = true;
-                                    targetSet.add(checkbox.value);
-                                });
-                            if (group === "unit") updateUnitLabel();
-                            else updateStatusLabel();
-                            filterRows();
-                        });
-                    });
-
-                document
-                    .querySelectorAll("[data-ms-none]")
-                    .forEach((button) => {
-                        button.addEventListener("click", () => {
-                            const group = button.dataset.msNone;
-                            const panelId =
-                                group === "unit"
-                                    ? "unitMsOptions"
-                                    : "statusMsOptions";
-                            const targetSet =
-                                group === "unit"
-                                    ? selectedUnits
-                                    : selectedStatuses;
-                            targetSet.clear();
-                            document
-                                .getElementById(panelId)
-                                .querySelectorAll("input[type=checkbox]")
-                                .forEach((checkbox) => {
-                                    checkbox.checked = false;
-                                });
-                            if (group === "unit") updateUnitLabel();
-                            else updateStatusLabel();
-                            filterRows();
-                        });
-                    });
-
-                document.addEventListener("click", (event) => {
-                    if (!event.target.closest(".multiselect")) {
-                        document
-                            .querySelectorAll(".multiselect.open")
-                            .forEach(closeMs);
-                    }
-                });
-            }
-
-            function resetMultiselectCheckboxes() {
-                document
-                    .querySelectorAll("input[data-ms-group]")
-                    .forEach((checkbox) => {
-                        checkbox.checked = false;
-                    });
+                unitSelect.appendChild(fragment);
             }
 
             function createCell(value, className = "") {
@@ -3459,26 +2946,10 @@
       `;
             }
 
-            function rowMatchesStatus(status, isChecked, isRetired) {
-                switch (status) {
-                    case "pendentes":
-                        return !isChecked;
-                    case "confeccionados":
-                        return isChecked;
-                    case "nao-retirados":
-                        return !isRetired;
-                    case "retirados":
-                        return isRetired;
-                    default:
-                        return false;
-                }
-            }
-
             function getFilteredRows() {
-                const cardQuery = onlyNumbers(searchInput.value);
-                const infoRaw = infoSearchInput.value.trim();
-                const infoText = normalizeText(infoRaw);
-                const infoDigits = onlyNumbers(infoRaw);
+                const query = onlyNumbers(searchInput.value);
+                const selectedUnit = unitSelect.value;
+                const selectedStatus = statusSelect.value;
 
                 return dados.filter((row) => {
                     const cardNumber = getCardKey(row);
@@ -3486,37 +2957,17 @@
                     const isChecked = cartoesConfeccionados.has(cardNumber);
                     const isRetired = cartoesRetirados.has(cardNumber);
 
-                    const matchesCard =
-                        !cardQuery || cardNumber.includes(cardQuery);
-
-                    let matchesInfo = true;
-                    if (infoText) {
-                        const nome = normalizeText(row["NOME"]);
-                        const unidade = normalizeText(row["UNIDADE"]);
-                        const cpfDigits = onlyNumbers(row["CPF"]);
-                        matchesInfo =
-                            nome.includes(infoText) ||
-                            unidade.includes(infoText) ||
-                            (infoDigits.length > 0 &&
-                                cpfDigits.includes(infoDigits));
-                    }
-
+                    const matchesCard = !query || cardNumber.includes(query);
                     const matchesUnit =
-                        selectedUnits.size === 0 ||
-                        selectedUnits.has(unitKey);
-
+                        !selectedUnit || unitKey === selectedUnit;
                     const matchesStatus =
-                        selectedStatuses.size === 0 ||
-                        [...selectedStatuses].some((status) =>
-                            rowMatchesStatus(status, isChecked, isRetired),
-                        );
+                        selectedStatus === "todos" ||
+                        (selectedStatus === "pendentes" && !isChecked) ||
+                        (selectedStatus === "confeccionados" && isChecked) ||
+                        (selectedStatus === "nao-retirados" && !isRetired) ||
+                        (selectedStatus === "retirados" && isRetired);
 
-                    return (
-                        matchesCard &&
-                        matchesInfo &&
-                        matchesUnit &&
-                        matchesStatus
-                    );
+                    return matchesCard && matchesUnit && matchesStatus;
                 });
             }
 
@@ -3557,288 +3008,17 @@
                 logPendingCards();
             }
 
-            // -------- Exportação do Termo de Responsabilidade (PDF) --------
-
-            const TR_HEADER_LINES = [
-                "ESTADO DE MATO GROSSO",
-                "SECRETARIA DE ESTADO DE SEGURANÇA PÚBLICA",
-                "POLÍCIA JUDICIÁRIA CIVIL",
-                "DIRETORIA DE ADMINISTRAÇÃO SISTÊMICA",
-                "COORDENADORIA DE APOIO LOGÍSTICO E OPERACIONAL",
-                "GERÊNCIA DE TRANSPORTES E TARIFAS",
-            ];
-
-            const TR_BODY_PARAGRAPHS = [
-                "Eu, abaixo-assinado, declaro ter recebido nesta data o cartão de rastreamento vinculado ao meu CPF, sendo este, de uso pessoal e intransferível, para fins de condução de veículos locados oriundos do Contrato nº 037/2025/SESP e 068/2025/SESP, da empresa CS Frotas, modelos CRETA, DUSTER, NIVUS, AIRCROSS, BASALT e L200 TRITON.",
-                "Declaro ainda, ter ciência da responsabilidade pelo uso, zelo e dever de comunicação ao setor de Transporte da PJC, em caso de perda ou extravio, bem como, tenho ciência das cláusulas contratuais, referente ao sistema de telemetria, elencadas abaixo:",
-            ];
-
-            const TR_CLAUSES = [
-                "5.26. DO SISTEMA DE GESTÃO, TELEMETRIA E RASTREAMENTO DOS VEÍCULOS",
-                "5.26.1. A CONTRATADA deve disponibilizar nos veículos locados um dispositivo de “telemetria” que alimente o sistema de gestão e rastreamento e que permita realizar, no mínimo, os seguintes controles:",
-                "5.26.2. Monitoramento, rastreamento e localização dos veículos 24 horas por dia;",
-                "5.26.3. Identificação do condutor;",
-                "5.26.4. Início da operação (km inicial);",
-                "5.26.5. Fim da operação (km final);",
-                "5.26.6 Número de horas de operação;",
-                "5.26.7. Data e horário inicial e final;",
-                "5.26.8. Coletor de custo vinculado ao usuário;",
-                "5.26.9. Traçado do roteiro percorrido;",
-                "5.26.10. Controle de veículos que pernoitam fora da base;",
-                "5.26.11. Velocidade durante todo o trajeto, com resumo de máxima, média e mínima;",
-                "5.26.12. Excesso de velocidade em tempo seco e chuvoso (o monitoramento em tempo chuvoso poderá ser a partir do acionamento do limpador de para-brisa);",
-                "5.26.13. Controle de velocidade por via;",
-                "5.26.14. Freadas bruscas;",
-                "5.26.15. Alerta de colisão (alerta de eventos atípicos, que podem indicar acidente);",
-                "5.26.16. Excesso de rotação do motor;",
-                "5.26.17. Câmbio na posição neutra (utilização, tempo e velocidade máxima atingida);",
-                "5.26.18. Registro de veículo parado com motor em funcionamento;",
-                "5.26.19. Controle de pernoite fora da base (cadastro);",
-                "5.26.23. O sistema de gestão e rastreamento deve permanecer em operação continuamente e realizar transmissão dos dados obtidos de modo “on-line” (respeitando o tempo de tráfego das informações). Em casos extremos o tempo entre a ocorrência de um evento e a disponibilização desta informação para consulta no sistema poderá ter uma defasagem máxima de até 24 horas;",
-                "5.26.24. O sistema deverá permitir a visualização do local de ocorrência dos eventos em mapas, informando data e hora de início ou fim da ocorrência, condutor, latitude e longitude.",
-                "5.26.25. Possibilitar a criação de cercas eletrônicas nomeáveis em formatos circulares e poligonais, além de permitir a associação de eventos a estas cercas eletrônicas;",
-                "5.26.26. Todas as unidades da CONTRATANTE deverão ser geo-referenciadas no sistema de monitoramento e identificadas com sigla ou nomenclatura objetivando a emissão de relatório de veículos que pernoitaram fora de sua base;",
-                "5.26.27. A identificação do condutor para fins de acionamento e rastreabilidade do veículo deverá ser realizada por meio eletrônico de identificação funcional baseado no cadastro de condutores credenciados na CONTRATANTE.",
-                "5.26.43. A CONTRATADA deverá em situações de substituições de veículos, por terem atingido tempo e/ou quilometragem, por estarem indisponíveis, e/ou nos casos de devolução por término da vigência contratual, entregar a CONTRATANTE, backup contendo todas as informações do monitoramento, no período em que o veículo foi utilizado pela Administração Pública.",
-            ];
-
-            const TR_FOOTER_LINES = [
-                "Avenida Cel. Escolástico, nº346 – Bairro: Bandeirantes – Cuiabá/MT CEP 78.010-200.",
-                "Fone/Fax: (65)3613-5651 (65)3613-5672 - e-mail: transporte@pjc.mt.gov.br",
-            ];
-
-            function escapeHtml(value) {
-                return String(value ?? "")
-                    .replace(/&/g, "&amp;")
-                    .replace(/</g, "&lt;")
-                    .replace(/>/g, "&gt;")
-                    .replace(/"/g, "&quot;");
-            }
-
-            function getExportUnitLabel(rows) {
-                // Usa as unidades distintas presentes nas linhas encontradas.
-                const distinct = [
-                    ...new Set(
-                        rows
-                            .map((row) =>
-                                cleanDisplayText(row["UNIDADE"]).toUpperCase(),
-                            )
-                            .filter(Boolean),
-                    ),
-                ].sort((a, b) => a.localeCompare(b, "pt-BR"));
-
-                if (distinct.length > 0) {
-                    return distinct.join(" / ");
-                }
-
-                if (selectedUnits.size > 0) {
-                    return [...selectedUnits]
-                        .map((key) =>
-                            (
-                                unitDisplayByKey.get(key) || key
-                            ).toUpperCase(),
-                        )
-                        .sort((a, b) => a.localeCompare(b, "pt-BR"))
-                        .join(" / ");
-                }
-
-                return "";
-            }
-
-            function buildTrHtml(rows, unitLabel) {
-                const headerHtml = TR_HEADER_LINES.map(
-                    (line) => `<div class="tr-org">${escapeHtml(line)}</div>`,
-                ).join("");
-
-                const bodyHtml = TR_BODY_PARAGRAPHS.map(
-                    (paragraph) =>
-                        `<p class="tr-paragraph">${escapeHtml(paragraph)}</p>`,
-                ).join("");
-
-                const clausesHtml = TR_CLAUSES.map(
-                    (clause) =>
-                        `<p class="tr-clause">${escapeHtml(clause)}</p>`,
-                ).join("");
-
-                const rowsHtml = rows
-                    .map(
-                        (row) => `
-                    <tr>
-                        <td class="tr-card">${escapeHtml(
-                            cleanDisplayText(row["Cartão RFID"]),
-                        )}</td>
-                        <td class="tr-name">${escapeHtml(
-                            cleanDisplayText(row["NOME"]),
-                        )}</td>
-                        <td class="tr-cpf">${escapeHtml(
-                            cleanDisplayText(row["CPF"]),
-                        )}</td>
-                        <td class="tr-sign"></td>
-                    </tr>`,
-                    )
-                    .join("");
-
-                const footerHtml = TR_FOOTER_LINES.map(
-                    (line) => `<div>${escapeHtml(line)}</div>`,
-                ).join("");
-
-                return `<!doctype html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8" />
-<title>Termo de Responsabilidade</title>
-<style>
-    * { box-sizing: border-box; }
-    body {
-        font-family: "Times New Roman", Times, serif;
-        color: #000;
-        margin: 0;
-        padding: 32px 40px 90px;
-        font-size: 12pt;
-        line-height: 1.4;
-    }
-    .tr-header { text-align: center; margin-bottom: 18px; }
-    .tr-org { font-weight: bold; text-transform: uppercase; font-size: 11pt; }
-    .tr-title {
-        text-align: center;
-        font-weight: bold;
-        font-size: 13pt;
-        margin: 18px 0 6px;
-    }
-    .tr-unit {
-        text-align: center;
-        font-weight: bold;
-        text-transform: uppercase;
-        margin: 6px 0 18px;
-        font-size: 12pt;
-    }
-    .tr-paragraph { text-align: justify; margin: 10px 0; text-indent: 40px; }
-    .tr-clause { text-align: justify; margin: 6px 0; }
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 18px;
-        font-size: 11pt;
-    }
-    th, td {
-        border: 1px solid #000;
-        padding: 6px 8px;
-        text-align: left;
-        vertical-align: middle;
-    }
-    thead th {
-        text-align: center;
-        font-weight: bold;
-        background: #e8e8e8;
-    }
-    .tr-card { text-align: center; white-space: nowrap; }
-    .tr-cpf { white-space: nowrap; }
-    .tr-sign { height: 34px; }
-    .tr-footer {
-        margin-top: 28px;
-        text-align: center;
-        font-size: 9pt;
-        border-top: 1px solid #000;
-        padding-top: 4px;
-    }
-    @media print {
-        thead { display: table-header-group; }
-        tr { page-break-inside: avoid; }
-    }
-</style>
-</head>
-<body>
-    <div class="tr-header">${headerHtml}</div>
-    <div class="tr-title">Termo de Responsabilidade e Recebimento de Cartão de Rastreamento – Contrato 037 e 068/2025/SESP</div>
-    <div class="tr-unit">${escapeHtml(unitLabel) || "&nbsp;"}</div>
-    ${bodyHtml}
-    ${clausesHtml}
-    <table>
-        <thead>
-            <tr>
-                <th>Cartão RFID</th>
-                <th>Nome Motorista</th>
-                <th>CPF</th>
-                <th>Assinatura</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${rowsHtml}
-        </tbody>
-    </table>
-    <div class="tr-footer">${footerHtml}</div>
-</body>
-</html>`;
-            }
-
-            function exportTr() {
-                const rows = getFilteredRows()
-                    .slice()
-                    .sort((a, b) =>
-                        normalizeText(a["NOME"]).localeCompare(
-                            normalizeText(b["NOME"]),
-                            "pt-BR",
-                        ),
-                    );
-
-                if (rows.length === 0) {
-                    alert(
-                        "Não há linhas encontradas para exportar. Ajuste os filtros e tente novamente.",
-                    );
-                    return;
-                }
-
-                const unitLabel = getExportUnitLabel(rows);
-                const html = buildTrHtml(rows, unitLabel);
-
-                const printWindow = window.open("", "_blank");
-                if (!printWindow) {
-                    alert(
-                        "Não foi possível abrir a janela de impressão. Verifique se o navegador está bloqueando pop-ups.",
-                    );
-                    return;
-                }
-
-                printWindow.document.open();
-                printWindow.document.write(html);
-                printWindow.document.close();
-                printWindow.focus();
-
-                // Aguarda a renderização antes de abrir a caixa de impressão,
-                // garantindo que só imprima uma vez.
-                let printed = false;
-                const doPrint = () => {
-                    if (printed) return;
-                    printed = true;
-                    try {
-                        printWindow.print();
-                    } catch (error) {
-                        console.warn("Falha ao imprimir o TR.", error);
-                    }
-                };
-                printWindow.onload = doPrint;
-                setTimeout(doPrint, 600);
-            }
-
             clearButton.addEventListener("click", () => {
                 searchInput.value = "";
-                infoSearchInput.value = "";
-                selectedUnits.clear();
-                selectedStatuses.clear();
-                resetMultiselectCheckboxes();
-                filterUnitOptions("");
-                const unitSearch =
-                    document.getElementById("unitMsSearch");
-                if (unitSearch) unitSearch.value = "";
-                updateUnitLabel();
-                updateStatusLabel();
+                unitSelect.value = "";
+                statusSelect.value = "todos";
                 searchInput.focus();
                 filterRows();
             });
 
             searchInput.addEventListener("input", filterRows);
-            infoSearchInput.addEventListener("input", filterRows);
-            exportTrButton.addEventListener("click", exportTr);
+            unitSelect.addEventListener("change", filterRows);
+            statusSelect.addEventListener("change", filterRows);
 
             tableBody.addEventListener("click", (event) => {
                 const button = event.target.closest("button[data-card]");
@@ -3847,7 +3027,7 @@
             });
 
             logUnitsAtStartup();
-            setupMultiselects();
+            populateUnitSelect();
             renderHeader();
             filterRows();
             logPendingCards();
